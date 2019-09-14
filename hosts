@@ -1,0 +1,16 @@
+common:
+  hosts:
+    pikube-01:
+      ansible_host: 192.168.178.45
+    pikube-02:
+      ansible_host: 192.168.178.44
+    pikube-03:
+      ansible_host: 192.168.178.43
+    pikube-04:
+      ansible_host: 192.168.178.42
+    pikube-05:
+      ansible_host: 192.168.178.21
+    pikube-06:
+      ansible_host: 192.168.178.39
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
