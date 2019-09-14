@@ -1,3 +1,4 @@
 # include other YAML files with tasks here
 - include: apt_update_upgrade.yml
 - include: set_ssh_key.yml
+- include: set_hostname.yml
