@@ -1,0 +1,6 @@
+# Making sure that the public key is available
+- name: add authorized_key to non-root user
+  authorized_key:
+    user: pi
+    state: present
+    key: "{{ lookup('file', '/Users/lein/.ssh/id_ed25519.pub') }}"
