@@ -1,1 +1,1 @@
-ansible-playbook -i ./hosts initial-security.yml
+ansible-playbook -i ./hosts 01-initial-security.yml
