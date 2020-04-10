@@ -2,7 +2,7 @@
 - name: apt-get update and apt-get upgrade
   become: true
   apt:
-    upgrade: yes
+    upgrade: 'yes'
     update_cache: yes
     cache_valid_time: 86400 #Only update if cache is older than one day
 

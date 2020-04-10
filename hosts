@@ -1,16 +1,26 @@
-common:
-  hosts:
-    pikube-01:
-      ansible_host: 192.168.178.45
-    pikube-02:
-      ansible_host: 192.168.178.44
-    pikube-03:
-      ansible_host: 192.168.178.43
-    pikube-04:
-      ansible_host: 192.168.178.42
-    pikube-05:
-      ansible_host: 192.168.178.21
-    pikube-06:
-      ansible_host: 192.168.178.39
+all:
+  children:
+    proxies:
+      hosts:
+        pikube-master:
+          ansible_host: 192.168.178.80
+    masters:
+      hosts:
+        pikube-01:
+          ansible_host: 192.168.178.81
+        pikube-02:
+          ansible_host: 192.168.178.82
+    workers:
+      hosts:
+        pikube-03:
+          ansible_host: 192.168.178.83
+        pikube-04:
+          ansible_host: 192.168.178.84
+        pikube-05:
+          ansible_host: 192.168.178.85
+        pikube-06:
+          ansible_host: 192.168.178.86
+        pikube-07:
+          ansible_host: 192.168.178.87
   vars:
     ansible_python_interpreter: /usr/bin/python3
