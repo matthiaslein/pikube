@@ -2,3 +2,4 @@
 - include: apt_update_upgrade.yml
 - include: set_ssh_key.yml
 - include: set_hostname.yml
+- include: crio_installation.yml
