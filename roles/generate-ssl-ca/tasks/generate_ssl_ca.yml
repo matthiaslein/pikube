@@ -1,0 +1,43 @@
+# entry point for creating new SSL Cartificate Authority
+- name: Create directory for certificates
+  file:
+    path: certificates
+    state: directory
+
+- name: Generate an OpenSSL private 2048 bit RSA key
+  openssl_privatekey:
+    path: "certificates/{{cluster_name }}-ca.pem"
+    size: 2048
+    type: RSA
+
+- name: Generate an OpenSSL public key in PEM format
+  openssl_publickey:
+    path: "certificates/{{cluster_name }}.pem"
+    privatekey_path: "certificates/{{cluster_name }}-ca.pem"
+
+- name: Generate an OpenSSL Certificate Signing Request
+  openssl_csr:
+    path: "certificates/{{cluster_name }}.csr"
+    privatekey_path: "certificates/{{cluster_name }}-ca.pem"
+    common_name: "{{cluster_name }}"
+    key_usage:
+      - digitalSignature
+      - keyAgreement
+      - dataEncipherment
+      - keyEncipherment
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+    subject_alt_name:
+      - DNS:kubernetes
+      - DNS:ubernetes.default
+      - DNS:kubernetes.default.svc
+      - DNS:kubernetes.default.svc.cluster
+      - DNS:kubernetes.default.svc.cluster.local
+
+- name: Generate a Self Signed OpenSSL certificate
+  openssl_certificate:
+    path: "certificates/{{cluster_name }}.crt"
+    privatekey_path: "certificates/{{cluster_name }}-ca.pem"
+    csr_path: "certificates/{{cluster_name }}.csr"
+    provider: selfsigned

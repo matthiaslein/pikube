@@ -1,4 +1,5 @@
-deploy_user: pikube-deployer
+cluster_name: pikube
+deploy_user: "{{ cluster_name }}-deployer"
 
 os_used: Ubuntu
 os_version: 19.10
