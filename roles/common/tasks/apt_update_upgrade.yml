@@ -5,17 +5,20 @@
     upgrade: 'yes'
     update_cache: yes
     cache_valid_time: 86400 #Only update if cache is older than one day
+  register: apt_update_upgrade
 
 - name: apt-get autoclean
   become: true
   apt:
     autoclean: yes
+  when: apt_update_upgrade.changed == True
 
 - name: apt-get autoremove --purge
   become: true
   apt:
     autoremove: yes
     purge: yes
+  when: apt_update_upgrade.changed == True
 
 - name: Check if reboot is required
   stat:

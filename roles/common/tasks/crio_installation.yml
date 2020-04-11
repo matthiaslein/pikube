@@ -2,17 +2,35 @@
 # Documentation at
 # https://kubernetes.io/docs/setup/production-environment/container-runtimes/
 # https://github.com/cri-o/cri-o
+# https://medium.com/@raghwendrasingh1819/diy-kubernetes-cluster-with-cri-o-container-runtime-ubuntu-xenial-53e967c33dd9
+
+# Currently the package_facts module is broken...
+#- name: Gather installed packages
+#  package_facts:
+#    manager: auto
+#  register: facts
+
+# Workaround for broken package_facts module
+- name: Check if crio 1.17 is installed
+  shell: dpkg --list | grep cri-o-1.17
+  register: crio_pkg
+  ignore_errors: yes
+
 - name: Add the overlay module
   become: true
   modprobe:
     name: overlay
     state: present
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: Add the br_netfilter module
   become: true
   modprobe:
     name: br_netfilter
     state: present
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 1
   become: true
@@ -22,6 +40,8 @@
     state: present
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 2
   become: true
@@ -31,6 +51,8 @@
     state: present
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 3
   become: true
@@ -40,12 +62,16 @@
     state: present
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: add crio apt-key
   become: true
   apt_key:
     url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_19.10/Release.key
     state: present
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: add crio apt repository
   become: true
@@ -54,6 +80,8 @@
     state: present
     filename: devel:kubic:libcontainers:stable.list
     update_cache: yes
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
 
 - name: install crio
   become: true
@@ -61,12 +89,16 @@
     name: cri-o-1.17
     state: present
     update_cache: yes
+  when: crio_pkg.rc != 0
+  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  register: crio_installed
 
 - name: fix crio version
   become: true
   dpkg_selections:
     name: cri-o-1.17
     selection: hold
+  when: crio_installed.changed == True
 
 # Fix for a known issue, probably not needed in the future
 # https://github.com/cri-o/cri-o/issues/3504
@@ -77,14 +109,17 @@
     regexp: 'apparmor_profile = "crio-default"' 
     line: 'apparmor_profile = "crio-default-1.17.2"'
     backrefs: yes # w/o this, the operation isn't idempotent'
+  when: crio_installed.changed == True
 
 - name: systemd reload
   become: true
   systemd:
     daemon_reload: yes
+  when: crio_installed.changed == True
 
 - name: start crio
   become: true
   systemd:
     state: started
     name: crio
+  when: crio_installed.changed == True
