@@ -1,0 +1,6 @@
+# entry point for common playbook
+- name: make sure necessary packages are installed
+  become: true
+  apt:
+    pkg:
+    - python3-apt
