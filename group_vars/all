@@ -1,0 +1,6 @@
+deploy_user: pikube-deployer
+
+os_used: Ubuntu
+os_version: 19.10
+
+k8s_crio_version: 1.17

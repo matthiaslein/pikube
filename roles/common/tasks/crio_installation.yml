@@ -11,8 +11,8 @@
 #  register: facts
 
 # Workaround for broken package_facts module
-- name: Check if crio 1.17 is installed
-  shell: dpkg --list | grep cri-o-1.17
+- name: Check if crio {{ k8s_crio_version }} is installed
+  shell: dpkg --list | grep cri-o-{{ k8s_crio_version }}
   register: crio_pkg
   ignore_errors: yes
 
@@ -22,7 +22,7 @@
     name: overlay
     state: present
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: Add the br_netfilter module
   become: true
@@ -30,7 +30,7 @@
     name: br_netfilter
     state: present
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 1
   become: true
@@ -41,7 +41,7 @@
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 2
   become: true
@@ -52,7 +52,7 @@
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 3
   become: true
@@ -63,40 +63,40 @@
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: add crio apt-key
   become: true
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_19.10/Release.key
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/x{{ os_used }}_{{ os_version }}/Release.key
     state: present
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: add crio apt repository
   become: true
   apt_repository:
-    repo: 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_19.10/ /'
+    repo: 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/x{{ os_used }}_{{ os_version }}/ /'
     state: present
     filename: devel:kubic:libcontainers:stable.list
     update_cache: yes
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: install crio
   become: true
   apt:
-    name: cri-o-1.17
+    name: cri-o-{{ k8s_crio_version }}
     state: present
     update_cache: yes
   when: crio_pkg.rc != 0
-  #when: '"cri-o-1.17" not in ansible_facts.packages'
+  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
   register: crio_installed
 
 - name: fix crio version
   become: true
   dpkg_selections:
-    name: cri-o-1.17
+    name: cri-o-{{ k8s_crio_version }}
     selection: hold
   when: crio_installed.changed == True
 
@@ -107,7 +107,7 @@
   lineinfile: 
     path: /etc/crio/crio.conf
     regexp: 'apparmor_profile = "crio-default"' 
-    line: 'apparmor_profile = "crio-default-1.17.2"'
+    line: 'apparmor_profile = "crio-default-{{ k8s_crio_version }}.2"'
     backrefs: yes # w/o this, the operation isn't idempotent'
   when: crio_installed.changed == True
 

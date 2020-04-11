@@ -1,6 +1,6 @@
 # High level instructions for which tasks apply to which hosts
 - name: apply local configuration to servers listed in hosts
   hosts: all
-  user: pikube-deployer
+  user: "{{ deploy_user }}"
   roles:
     - common
