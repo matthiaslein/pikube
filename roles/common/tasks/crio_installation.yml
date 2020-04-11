@@ -1,0 +1,90 @@
+# Adding the crio repository and install
+# Documentation at
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/
+# https://github.com/cri-o/cri-o
+- name: Add the overlay module
+  become: true
+  modprobe:
+    name: overlay
+    state: present
+
+- name: Add the br_netfilter module
+  become: true
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: 99-kubernetes-cri.conf 1
+  become: true
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+    reload: yes
+
+- name: 99-kubernetes-cri.conf 2
+  become: true
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+    reload: yes
+
+- name: 99-kubernetes-cri.conf 3
+  become: true
+  sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+    reload: yes
+
+- name: add crio apt-key
+  become: true
+  apt_key:
+    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/xUbuntu_19.10/Release.key
+    state: present
+
+- name: add crio apt repository
+  become: true
+  apt_repository:
+    repo: 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/xUbuntu_19.10/ /'
+    state: present
+    filename: devel:kubic:libcontainers:stable.list
+    update_cache: yes
+
+- name: install crio
+  become: true
+  apt:
+    name: cri-o-1.17
+    state: present
+    update_cache: yes
+
+- name: fix crio version
+  become: true
+  dpkg_selections:
+    name: cri-o-1.17
+    selection: hold
+
+# Fix for a known issue, probably not needed in the future
+# https://github.com/cri-o/cri-o/issues/3504
+- name: replace line, Fix cri-o issue 3504
+  become: true
+  lineinfile: 
+    path: /etc/crio/crio.conf
+    regexp: 'apparmor_profile = "crio-default"' 
+    line: 'apparmor_profile = "crio-default-1.17.2"'
+    backrefs: yes # w/o this, the operation isn't idempotent'
+
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: start crio
+  become: true
+  systemd:
+    state: started
+    name: crio
