@@ -20,7 +20,7 @@
 - name: Check if kube-apiserver certificate exists
   stat:
     path: "certificates/{{ cluster_name }}-kube-apiserver.crt"
-  register: kube-apiserver_cert_exists
+  register: kube_apiserver_cert_exists
 
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
@@ -36,13 +36,12 @@
       - clientAuth
       - serverAuth
     subject: "CN=kube-apiserver/O=system:masters"
-    subject_alt_name:
-      - DNS:kubernetes
-      - DNS:ubernetes.default
-      - DNS:kubernetes.default.svc
-      - DNS:kubernetes.default.svc.cluster
-      - DNS:kubernetes.default.svc.cluster.local
-  when: ca_exists.stat.exists == True and kube-apiserver_cert_exists.stat.exists == False
+    subject_alt_name: "DNS:kubernetes,DNS:ubernetes.default, DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }}"
+  when: ca_exists.stat.exists == True and kube_apiserver_cert_exists.stat.exists == False
+
+- name: Print the names of the master nodes
+  debug:
+    msg: Names {{ masters_names }}
 
 - name: Sign the kube-apiserver key with CA to obtain kube-apiserver certificate
   openssl_certificate:
@@ -50,7 +49,7 @@
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     csr_path: "certificates/{{ cluster_name }}-kube-apiserver.csr"
     provider: selfsigned
-  when: ca_exists.stat.exists == True and kube-apiserver_cert_exists.stat.exists == False
+  when: ca_exists.stat.exists == True and kube_apiserver_cert_exists.stat.exists == False
 
 - name: Remove Certificate Signing Request
   file:

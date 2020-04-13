@@ -5,3 +5,9 @@ os_used: Ubuntu
 os_version: 19.10
 
 k8s_crio_version: 1.17
+
+# https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
+masters_ips: "IP:{{ groups['masters'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
+masters_names: "DNS:{{ groups['masters'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"
+proxies_ips: "{{ groups['proxies'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
+workers_ips: "{{ groups['workers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"

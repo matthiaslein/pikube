@@ -5,4 +5,5 @@
 - include: generate_kube-proxy_certificate.yml
 - include: generate_kube-scheduler_certificate.yml
 - include: generate_kube-apiserver_certificate.yml
-- include: generate_etcd-cluster__certificate.yml
+- include: generate_etcd-cluster_certificate.yml
+- include: generate_service-account_certificate.yml

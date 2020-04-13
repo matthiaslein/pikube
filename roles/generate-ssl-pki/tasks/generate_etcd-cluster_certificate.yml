@@ -8,7 +8,7 @@
 
 - name: Generate an OpenSSL 2048 bit private RSA key
   openssl_privatekey:
-    path: "certificates/{{ cluster_name }}-kube-proxy.key"
+    path: "certificates/{{ cluster_name }}-etcd.key"
     size: 2048
     type: RSA
 
@@ -17,27 +17,28 @@
     path: "certificates/{{ cluster_name }}-ca.key"
   register: ca_exists
 
-- name: Check if kube-proxy certificate exists
+- name: Check if etcd certificate exists
   stat:
-    path: "certificates/{{ cluster_name }}-kube-proxy.crt"
-  register: kube_proxy_cert_exists
+    path: "certificates/{{ cluster_name }}-etcd.crt"
+  register: etcd_cert_exists
 
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
-    path: "certificates/{{ cluster_name }}-kube-proxy.csr"
-    privatekey_path: "certificates/{{ cluster_name }}-kube-proxy.key"
-    subject: "CN=system:kube-proxy"
-  when: ca_exists.stat.exists == True and kube_proxy_cert_exists.stat.exists == False
+    path: "certificates/{{ cluster_name }}-etcd.csr"
+    privatekey_path: "certificates/{{ cluster_name }}-etcd.key"
+    subject: "CN=etcd-server"
+    subject_alt_name: "{{ masters_ips }},{{ masters_names }}"
+  when: ca_exists.stat.exists == True and etcd_cert_exists.stat.exists == False
 
-- name: Sign the kube-proxy key with CA to obtain kube-proxy certificate
+- name: Sign the etcd key with CA to obtain etcd certificate
   openssl_certificate:
-    path: "certificates/{{ cluster_name }}-kube-proxy.crt"
+    path: "certificates/{{ cluster_name }}-etcd.crt"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
-    csr_path: "certificates/{{ cluster_name }}-kube-proxy.csr"
+    csr_path: "certificates/{{ cluster_name }}-etcd.csr"
     provider: selfsigned
-  when: ca_exists.stat.exists == True and kube_proxy_cert_exists.stat.exists == False
+  when: ca_exists.stat.exists == True and etcd_cert_exists.stat.exists == False
 
 - name: Remove Certificate Signing Request
   file:
-    path: "certificates/{{ cluster_name }}-kube-proxy.csr"
+    path: "certificates/{{ cluster_name }}-etcd.csr"
     state: absent

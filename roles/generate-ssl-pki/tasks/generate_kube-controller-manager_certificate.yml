@@ -20,14 +20,14 @@
 - name: Check if kube-controller-manager certificate exists
   stat:
     path: "certificates/{{ cluster_name }}-kube-controller-manager.crt"
-  register: kube-controller-manager_cert_exists
+  register: kube_controller_manager_cert_exists
 
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{ cluster_name }}-kube-controller-manager.csr"
     privatekey_path: "certificates/{{ cluster_name }}-kube-controller-manager.key"
     subject: "CN=system:kube-controller-manager"
-  when: ca_exists.stat.exists == True and kube-controller-manager_cert_exists.stat.exists == False
+  when: ca_exists.stat.exists == True and kube_controller_manager_cert_exists.stat.exists == False
 
 - name: Sign the kube-controller-manager key with CA to obtain kube-controller-manager certificate
   openssl_certificate:
@@ -35,7 +35,7 @@
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     csr_path: "certificates/{{ cluster_name }}-kube-controller-manager.csr"
     provider: selfsigned
-  when: ca_exists.stat.exists == True and kube-controller-manager_cert_exists.stat.exists == False
+  when: ca_exists.stat.exists == True and kube_controller_manager_cert_exists.stat.exists == False
 
 - name: Remove Certificate Signing Request
   file:

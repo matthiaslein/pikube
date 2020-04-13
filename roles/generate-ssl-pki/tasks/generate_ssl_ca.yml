@@ -21,7 +21,7 @@
   openssl_csr:
     path: "certificates/{{ cluster_name }}.csr"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
-    subject: "{{cluster_name}}-certificate-authority"
+    subject: "CN={{ cluster_name }}-ca"
   when: certificate_exists.stat.exists == False
 
 - name: Generate a Self Signed OpenSSL certificate with our private key.
