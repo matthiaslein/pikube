@@ -12,10 +12,10 @@
 - name: Create secret for encryption
   set_fact:
     encryption_key: "{{ lookup('password', '/tmp/passwordfile length=32 chars=ascii_letters,digits,hexdigits,punctuation') }}"
-  when: need_config.stat.exists == True
+  when: need_config.stat.exists == False
 
 - name: Create configuration file for enryption
   template:
     src: templates/encryption_config.j2
     dest: configuration/encryption-config.yaml
-  when: need_config.stat.exists == True
+  when: need_config.stat.exists == False
