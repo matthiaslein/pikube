@@ -1,0 +1,43 @@
+# entry point for creating new SSL Cartificate Authority
+# https://github.com/githubixx/ansible-role-kubernetes-ca
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/04-certificate-authority.md
+- name: Create directory for certificates
+  file:
+    path: certificates
+    state: directory
+
+- name: Generate an OpenSSL 2048 bit private RSA key
+  openssl_privatekey:
+    path: "certificates/{{ cluster_name }}-kube-scheduler.key"
+    size: 2048
+    type: RSA
+
+- name: Check if certificate authority exists
+  stat:
+    path: "certificates/{{ cluster_name }}-ca.key"
+  register: ca_exists
+
+- name: Check if kube-scheduler certificate exists
+  stat:
+    path: "certificates/{{ cluster_name }}-kube-scheduler.crt"
+  register: kube-scheduler_cert_exists
+
+- name: Generate an OpenSSL Certificate Signing Request
+  openssl_csr:
+    path: "certificates/{{ cluster_name }}-kube-scheduler.csr"
+    privatekey_path: "certificates/{{ cluster_name }}-kube-scheduler.key"
+    subject: "CN=system:kube-scheduler"
+  when: ca_exists.stat.exists == True and kube-scheduler_cert_exists.stat.exists == False
+
+- name: Sign the kube-scheduler key with CA to obtain kube-scheduler certificate
+  openssl_certificate:
+    path: "certificates/{{ cluster_name }}-kube-scheduler.crt"
+    privatekey_path: "certificates/{{ cluster_name }}-ca.key"
+    csr_path: "certificates/{{ cluster_name }}-kube-scheduler.csr"
+    provider: selfsigned
+  when: ca_exists.stat.exists == True and kube-scheduler_cert_exists.stat.exists == False
+
+- name: Remove Certificate Signing Request
+  file:
+    path: "certificates/{{ cluster_name }}-kube-scheduler.csr"
+    state: absent

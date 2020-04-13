@@ -1,5 +1,6 @@
 # entry point for creating new SSL Cartificate Authority
 # https://github.com/githubixx/ansible-role-kubernetes-ca
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/04-certificate-authority.md
 - name: Create directory for certificates
   file:
     path: certificates
@@ -7,39 +8,31 @@
 
 - name: Generate an OpenSSL 2048 bit private RSA key
   openssl_privatekey:
-    path: "certificates/{{cluster_name }}-ca.key"
+    path: "certificates/{{ cluster_name }}-ca.key"
     size: 2048
     type: RSA
 
-# We don't need the corresponding public key, do we?'
-#- name: Generate an OpenSSL public key in PEM format
-#  openssl_publickey:
-#    path: "certificates/{{cluster_name }}.pem"
-#    privatekey_path: "certificates/{{cluster_name }}-ca.key"
+- name: Check if certificate exists
+  stat:
+    path: "certificates/{{ cluster_name }}.crt"
+  register: certificate_exists
 
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
-    path: "certificates/{{cluster_name }}.csr"
-    privatekey_path: "certificates/{{cluster_name }}-ca.key"
-    common_name: "{{cluster_name }}"
-    key_usage:
-      - digitalSignature
-      - keyAgreement
-      - dataEncipherment
-      - keyEncipherment
-    extended_key_usage:
-      - clientAuth
-      - serverAuth
-    subject_alt_name:
-      - DNS:kubernetes
-      - DNS:ubernetes.default
-      - DNS:kubernetes.default.svc
-      - DNS:kubernetes.default.svc.cluster
-      - DNS:kubernetes.default.svc.cluster.local
+    path: "certificates/{{ cluster_name }}.csr"
+    privatekey_path: "certificates/{{ cluster_name }}-ca.key"
+    subject: "{{cluster_name}}-certificate-authority"
+  when: certificate_exists.stat.exists == False
 
-- name: Generate a Self Signed OpenSSL certificate
+- name: Generate a Self Signed OpenSSL certificate with our private key.
   openssl_certificate:
-    path: "certificates/{{cluster_name }}.crt"
-    privatekey_path: "certificates/{{cluster_name }}-ca.key"
-    csr_path: "certificates/{{cluster_name }}.csr"
+    path: "certificates/{{ cluster_name }}.crt"
+    privatekey_path: "certificates/{{ cluster_name }}-ca.key"
+    csr_path: "certificates/{{ cluster_name }}.csr"
     provider: selfsigned
+  when: certificate_exists.stat.exists == False
+
+- name: Remove Certificate Signing Request
+  file:
+    path: "certificates/{{ cluster_name }}.csr"
+    state: absent
