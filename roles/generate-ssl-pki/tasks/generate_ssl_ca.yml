@@ -1,24 +1,26 @@
 # entry point for creating new SSL Cartificate Authority
+# https://github.com/githubixx/ansible-role-kubernetes-ca
 - name: Create directory for certificates
   file:
     path: certificates
     state: directory
 
-- name: Generate an OpenSSL private 2048 bit RSA key
+- name: Generate an OpenSSL 2048 bit private RSA key
   openssl_privatekey:
-    path: "certificates/{{cluster_name }}-ca.pem"
+    path: "certificates/{{cluster_name }}-ca.key"
     size: 2048
     type: RSA
 
-- name: Generate an OpenSSL public key in PEM format
-  openssl_publickey:
-    path: "certificates/{{cluster_name }}.pem"
-    privatekey_path: "certificates/{{cluster_name }}-ca.pem"
+# We don't need the corresponding public key, do we?'
+#- name: Generate an OpenSSL public key in PEM format
+#  openssl_publickey:
+#    path: "certificates/{{cluster_name }}.pem"
+#    privatekey_path: "certificates/{{cluster_name }}-ca.key"
 
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{cluster_name }}.csr"
-    privatekey_path: "certificates/{{cluster_name }}-ca.pem"
+    privatekey_path: "certificates/{{cluster_name }}-ca.key"
     common_name: "{{cluster_name }}"
     key_usage:
       - digitalSignature
@@ -38,6 +40,6 @@
 - name: Generate a Self Signed OpenSSL certificate
   openssl_certificate:
     path: "certificates/{{cluster_name }}.crt"
-    privatekey_path: "certificates/{{cluster_name }}-ca.pem"
+    privatekey_path: "certificates/{{cluster_name }}-ca.key"
     csr_path: "certificates/{{cluster_name }}.csr"
     provider: selfsigned
