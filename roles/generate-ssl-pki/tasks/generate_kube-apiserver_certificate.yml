@@ -36,7 +36,7 @@
       - clientAuth
       - serverAuth
     subject: "CN=kube-apiserver/O=system:masters"
-    subject_alt_name: "DNS:kubernetes,DNS:ubernetes.default, DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }}"
+    subject_alt_name: "DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }}"
   when: ca_exists.stat.exists == True and kube_apiserver_cert_exists.stat.exists == False
 
 - name: Print the names of the master nodes

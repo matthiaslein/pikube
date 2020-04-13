@@ -1,5 +1,5 @@
 # include other YAML files with tasks here
-- include: generate_ssl_ca.yml
+- include: generate_certificate_authority.yml
 - include: generate_admin_certificate.yml
 - include: generate_kube-controller-manager_certificate.yml
 - include: generate_kube-proxy_certificate.yml

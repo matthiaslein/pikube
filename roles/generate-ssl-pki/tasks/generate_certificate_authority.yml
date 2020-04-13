@@ -26,7 +26,7 @@
 
 - name: Generate a Self Signed OpenSSL certificate with our private key.
   openssl_certificate:
-    path: "certificates/{{ cluster_name }}.crt"
+    path: "certificates/{{ cluster_name }}-ca.crt"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     csr_path: "certificates/{{ cluster_name }}.csr"
     provider: selfsigned
