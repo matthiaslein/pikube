@@ -11,7 +11,7 @@
 
 - name: Create secret for encryption
   set_fact:
-          encryption_key: "{{ lookup('password', '/dev/null length=32') }}"
+          encryption_key: "{{ lookup('password', '/dev/null length=32') | b64encode }}"
   when: need_config.stat.exists == False
 
 - name: Create configuration file for enryption

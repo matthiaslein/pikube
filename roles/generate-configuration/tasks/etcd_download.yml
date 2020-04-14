@@ -1,0 +1,32 @@
+# Downloading etcd and install
+# Documentation at
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md
+# https://github.com/etcd-io/etcd/releases
+
+- name: Check if etcd download is required
+  stat:
+    path: packages/etcd-{{ etcd_version }}-linux-arm64.tar.gz
+  register: etcd_downloaded
+
+- name: Create directory for etcd installation
+  file:
+    path: packages
+    state: directory
+  when: etcd_downloaded.stat.exists == False
+
+- name: Download etcd {{ etcd_version }} package
+  get_url:
+    url: https://storage.googleapis.com/etcd/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-arm64.tar.gz
+    dest: packages
+  when: etcd_downloaded.stat.exists == False
+
+- name: Check if etcd archive unpack is required
+  stat:
+    path: packages/etcd-{{ etcd_version }}-linux-arm64
+  register: etcd_unpacked
+
+# unarchive module would be better, it's' currently buggy and can't handle tgz'
+- name: Extract etcd {{ etcd_version }} package
+  shell: "cd packages ; tar xzf etcd-{{ etcd_version }}-linux-arm64.tar.gz"
+  when: etcd_unpacked.stat.exists == False
