@@ -28,6 +28,15 @@
     path: /etc/etcd/
     state: directory
 
+- name: Copy /etc/etcd/etcd.conf
+  become: true
+  copy:
+    src: templates/etcd.conf
+    dest: /etc/etcd/etcd.conf
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Create /var/lib/etcd directory
   become: true
   file:
@@ -38,34 +47,51 @@
   become: true
   copy:
     src: certificates/pikube-ca.crt
-    dest: /etc/etcd/
+    dest: /etc/etcd/ca.crt
     owner: root
     group: root
-    mode: '0600'
+    mode: '0644'
 
 - name: Copy etcd certificate to etcd configuration
   become: true
   copy:
     src: certificates/pikube-etcd.crt
-    dest: /etc/etcd/
+    dest: /etc/etcd/etcd-server.crt
     owner: root
     group: root
-    mode: '0600'
+    mode: '0644'
 
 - name: Copy etcd key to etcd configuration
   become: true
   copy:
     src: certificates/pikube-etcd.key
-    dest: /etc/etcd/
+    dest: /etc/etcd/etcd-server.key
     owner: root
     group: root
     mode: '0600'
 
-- name: Create initial cluster string
-  set_fact:
-    etcd_cluster_member: "{{ inventory_hostname }}=https://{{ ansible_host}}:2380"
-  loop: "{{ groups['etcd_hosts'] }}"
+- name: Copy etcd configuration to the node
+  become: true
+  copy:
+    src: configuration/etcd-{{ inventory_hostname }}.config
+    dest: /etc/systemd/system/etcd.service
+    owner: root
+    group: root
 
-- name: Print etcd initial cluster string
-  debug:
-    msg: etcd_cluster_member {{ etcd_cluster_member }}
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: enable etcd
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: etcd
+
+- name: start etcd
+  become: true
+  systemd:
+    state: started
+    name: etcd

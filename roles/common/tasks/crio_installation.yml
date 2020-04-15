@@ -117,6 +117,14 @@
     daemon_reload: yes
   when: crio_installed.changed == True
 
+- name: enable crio
+  become: true
+  systemd:
+    enabled: yes
+    name: crio
+    masked: no
+  when: crio_installed.changed == True
+
 - name: start crio
   become: true
   systemd:

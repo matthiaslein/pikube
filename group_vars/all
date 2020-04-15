@@ -15,7 +15,5 @@ proxies_ips: "{{ groups['proxies'] | map('extract', hostvars, ['ansible_host']) 
 workers_ips: "{{ groups['workers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
 
 etcd_startup_node: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | random }}"
-
-#etcd_initial_cluster_1: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | join('=https://,') }}=https://"
-#etcd_initial_cluster_2: "{{ groups['etcd_hosts'] | map('extract', hostvars) | join(':2380,') }}:2380"
-#etcd_initial_cluster: " {{ etcd_initial_cluster_1 }} | {{ etcd_initial_cluster_2 }}"
+etcd_ips: "IP:{{ groups['etcd_hosts'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
+etcd_names: "DNS:{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"

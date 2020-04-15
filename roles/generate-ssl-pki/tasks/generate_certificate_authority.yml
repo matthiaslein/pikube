@@ -12,17 +12,11 @@
     size: 2048
     type: RSA
 
-- name: Check if certificate exists
-  stat:
-    path: "certificates/{{ cluster_name }}.crt"
-  register: certificate_exists
-
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{ cluster_name }}.csr"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     subject: "CN={{ cluster_name }}-ca"
-  when: certificate_exists.stat.exists == False
 
 - name: Generate a Self Signed OpenSSL certificate with our private key.
   openssl_certificate:
@@ -30,9 +24,3 @@
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     csr_path: "certificates/{{ cluster_name }}.csr"
     provider: selfsigned
-  when: certificate_exists.stat.exists == False
-
-- name: Remove Certificate Signing Request
-  file:
-    path: "certificates/{{ cluster_name }}.csr"
-    state: absent

@@ -16,29 +16,24 @@
   stat:
     path: "certificates/{{ cluster_name }}-ca.key"
   register: ca_exists
-
-- name: Check if etcd certificate exists
-  stat:
-    path: "certificates/{{ cluster_name }}-etcd.crt"
-  register: etcd_cert_exists
-
+  
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{ cluster_name }}-etcd.csr"
     privatekey_path: "certificates/{{ cluster_name }}-etcd.key"
+    key_usage:
+      - digitalSignature
+      - nonRepudiation
+      - keyEncipherment
     subject: "CN=etcd-server"
-    subject_alt_name: "{{ masters_ips }},{{ masters_names }}"
-  when: ca_exists.stat.exists == True and etcd_cert_exists.stat.exists == False
+    subject_alt_name: "{{ etcd_ips }},IP:127.0.0.1,{{ etcd_names }}"
+  when: ca_exists.stat.exists == True
 
 - name: Sign the etcd key with CA to obtain etcd certificate
   openssl_certificate:
     path: "certificates/{{ cluster_name }}-etcd.crt"
-    privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     csr_path: "certificates/{{ cluster_name }}-etcd.csr"
-    provider: selfsigned
-  when: ca_exists.stat.exists == True and etcd_cert_exists.stat.exists == False
-
-- name: Remove Certificate Signing Request
-  file:
-    path: "certificates/{{ cluster_name }}-etcd.csr"
-    state: absent
+    ownca_path: "certificates/{{ cluster_name }}-ca.crt"
+    ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
+    provider: ownca
+  when: ca_exists.stat.exists == True
