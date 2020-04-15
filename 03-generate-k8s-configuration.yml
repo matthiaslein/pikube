@@ -4,3 +4,10 @@
   user: "{{ deploy_user }}"
   roles:
     - generate-configuration
+
+- name: Generate etcd configuration
+  hosts: etcd_hosts
+  user: "{{ deploy_user }}"
+  roles:
+    - generate-etcd-configuration
+

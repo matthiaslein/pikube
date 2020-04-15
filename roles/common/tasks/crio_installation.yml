@@ -65,15 +65,15 @@
   when: crio_pkg.rc != 0
   #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
-- name: add crio apt-key
+- name: add crio apt-key for {{ os_used }} {{ os_version }}
   become: true
   apt_key:
-    url: https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/x{{ os_used }}_{{ os_version }}/Release.key
+    url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/x{{ os_used }}_{{ os_version }}/Release.key"
     state: present
   when: crio_pkg.rc != 0
   #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
-- name: add crio apt repository
+- name: add crio apt repository {{ os_used }} {{ os_version }}
   become: true
   apt_repository:
     repo: 'deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/x{{ os_used }}_{{ os_version }}/ /'
@@ -83,7 +83,7 @@
   when: crio_pkg.rc != 0
   #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
-- name: install crio
+- name: install crio {{ k8s_crio_version }}
   become: true
   apt:
     name: cri-o-{{ k8s_crio_version }}
@@ -93,7 +93,7 @@
   #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
   register: crio_installed
 
-- name: fix crio version
+- name: fix/hold crio to version {{ k8s_crio_version }}
   become: true
   dpkg_selections:
     name: cri-o-{{ k8s_crio_version }}

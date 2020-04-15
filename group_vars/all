@@ -2,7 +2,7 @@ cluster_name: pikube
 deploy_user: "{{ cluster_name }}-deployer"
 
 os_used: Ubuntu
-os_version: 19.10
+os_version: "19.10"
 
 k8s_crio_version: 1.17
 
@@ -13,3 +13,9 @@ masters_ips: "IP:{{ groups['masters'] | map('extract', hostvars, ['ansible_host'
 masters_names: "DNS:{{ groups['masters'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"
 proxies_ips: "{{ groups['proxies'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
 workers_ips: "{{ groups['workers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
+
+etcd_startup_node: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | random }}"
+
+#etcd_initial_cluster_1: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | join('=https://,') }}=https://"
+#etcd_initial_cluster_2: "{{ groups['etcd_hosts'] | map('extract', hostvars) | join(':2380,') }}:2380"
+#etcd_initial_cluster: " {{ etcd_initial_cluster_1 }} | {{ etcd_initial_cluster_2 }}"

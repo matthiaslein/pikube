@@ -1,0 +1,71 @@
+# Install etcd
+# Documentation at
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/07-bootstrapping-etcd.md
+# https://github.com/etcd-io/etcd/releases
+
+- name: Copy etcd binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/etcd-{{ etcd_version }}-linux-arm64/etcd
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy etcdctl binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/etcd-{{ etcd_version }}-linux-arm64/etcdctl
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create /etc/etcd/ directory
+  become: true
+  file:
+    path: /etc/etcd/
+    state: directory
+
+- name: Create /var/lib/etcd directory
+  become: true
+  file:
+    path: /var/lib/etcd
+    state: directory
+
+- name: Copy CA certificate to etcd configuration
+  become: true
+  copy:
+    src: certificates/pikube-ca.crt
+    dest: /etc/etcd/
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy etcd certificate to etcd configuration
+  become: true
+  copy:
+    src: certificates/pikube-etcd.crt
+    dest: /etc/etcd/
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy etcd key to etcd configuration
+  become: true
+  copy:
+    src: certificates/pikube-etcd.key
+    dest: /etc/etcd/
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Create initial cluster string
+  set_fact:
+    etcd_cluster_member: "{{ inventory_hostname }}=https://{{ ansible_host}}:2380"
+  loop: "{{ groups['etcd_hosts'] }}"
+
+- name: Print etcd initial cluster string
+  debug:
+    msg: etcd_cluster_member {{ etcd_cluster_member }}

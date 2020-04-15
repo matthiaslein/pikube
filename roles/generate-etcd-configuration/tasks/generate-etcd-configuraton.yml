@@ -1,0 +1,29 @@
+# entry point for creating K8s configuration files
+- name: Create directory for configuration files
+  delegate_to: localhost
+  file:
+    path: configuration
+    state: directory
+
+- name: Check if new etcd config is required
+  delegate_to: localhost
+  stat:
+    path: configuration/etcd.config
+  register: need_config
+
+- name: Create initial etcd cluster string
+  set_fact:
+    etcd_cluster_member: "{{ inventory_hostname }}=https://{{ ansible_host}}:2380"
+  when: need_config.stat.exists == False
+
+- name: Assemble etcd initial cluster string
+  set_fact:
+    etcd_initial_cluster: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['etcd_cluster_member']) | join(',') }}"
+  when: need_config.stat.exists == False
+
+- name: Create etcd configuration file
+  delegate_to: localhost
+  template:
+    src: templates/etcd_config.j2
+    dest: configuration/etcd.config
+  when: need_config.stat.exists == False
