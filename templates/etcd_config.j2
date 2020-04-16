@@ -6,18 +6,18 @@ Documentation=https://github.com/coreos
 EnvironmentFile=/etc/etcd/etcd.conf
 ExecStart=/usr/local/bin/etcd \
   --name {{ inventory_hostname }} \
-  --cert-file=/etc/etcd/etcd-server.crt \
-  --key-file=/etc/etcd/etcd-server.key \
-  --peer-cert-file=/etc/etcd/etcd-server.crt \
-  --peer-key-file=/etc/etcd/etcd-server.key \
-  --trusted-ca-file=/etc/etcd/ca.crt \
-  --peer-trusted-ca-file=/etc/etcd/ca.crt \
+  --cert-file=/etc/etcd/{{ cluster_name }}-etcd.crt \
+  --key-file=/etc/etcd/{{ cluster_name }}-etcd.key \
+  --peer-cert-file=/etc/etcd/{{ cluster_name }}-etcd.crt \
+  --peer-key-file=/etc/etcd/{{ cluster_name }}-etcd.key \
+  --trusted-ca-file=/etc/etcd/{{ cluster_name }}-ca.crt \
+  --peer-trusted-ca-file=/etc/etcd/{{ cluster_name }}-ca.crt \
   --peer-client-cert-auth \
   --client-cert-auth \
-  --initial-advertise-peer-urls https://{{ proxies_ips }}:2380 \
-  --listen-peer-urls https://{{ proxies_ips }}:2380 \
-  --listen-client-urls https://{{ proxies_ips }}:2379,https://127.0.0.1:2379 \
-  --advertise-client-urls https://{{ proxies_ips }}:2379 \
+  --initial-advertise-peer-urls https://{{ ansible_host }}:2380 \
+  --listen-peer-urls https://{{ ansible_host }}:2380 \
+  --listen-client-urls https://{{ ansible_host }}:2379,https://127.0.0.1:2379 \
+  --advertise-client-urls https://{{ ansible_host }}:2379 \
   --initial-cluster-token etcd-cluster-0 \
   --initial-cluster {{ etcd_initial_cluster }} \
   --initial-cluster-state new \

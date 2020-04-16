@@ -1,4 +1,4 @@
-# entry point for creating new SSL Cartificate Authority
+# entry point for creating new SSL Certificate Authority
 # https://github.com/githubixx/ansible-role-kubernetes-ca
 # https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/04-certificate-authority.md
 - name: Create directory for certificates
@@ -17,6 +17,19 @@
     path: "certificates/{{ cluster_name }}.csr"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     subject: "CN={{ cluster_name }}-ca"
+    organization_name: "{{ cluster_name }}"
+    basic_constraints: "CA:TRUE"
+    key_usage:
+      - keyCertSign
+      - cRLSign
+      - digitalSignature
+      - nonRepudiation
+      - keyAgreement
+      - dataEncipherment
+      - keyEncipherment
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
 
 - name: Generate a Self Signed OpenSSL certificate with our private key.
   openssl_certificate:
@@ -24,3 +37,9 @@
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     csr_path: "certificates/{{ cluster_name }}.csr"
     provider: selfsigned
+
+# After the certificate is generated, check it with the following command:
+# openssl x509 -text -noout -in certificates/{{ cluster_name }}-ca.crt
+#
+# it *must* contain "CA:TRUE" under the "X509v3 Basic Constraints" or it won't
+# be accepted as a valid signing authority for "proper" TLS.

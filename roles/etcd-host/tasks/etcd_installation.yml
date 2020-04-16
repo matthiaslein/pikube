@@ -46,8 +46,8 @@
 - name: Copy CA certificate to etcd configuration
   become: true
   copy:
-    src: certificates/pikube-ca.crt
-    dest: /etc/etcd/ca.crt
+    src: certificates/{{ cluster_name }}-ca.crt
+    dest: /etc/etcd/{{ cluster_name }}-ca.crt
     owner: root
     group: root
     mode: '0644'
@@ -55,8 +55,8 @@
 - name: Copy etcd certificate to etcd configuration
   become: true
   copy:
-    src: certificates/pikube-etcd.crt
-    dest: /etc/etcd/etcd-server.crt
+    src: certificates/{{ cluster_name }}-etcd.crt
+    dest: /etc/etcd/{{ cluster_name }}-etcd.crt
     owner: root
     group: root
     mode: '0644'
@@ -64,8 +64,8 @@
 - name: Copy etcd key to etcd configuration
   become: true
   copy:
-    src: certificates/pikube-etcd.key
-    dest: /etc/etcd/etcd-server.key
+    src: certificates/{{ cluster_name }}-etcd.key
+    dest: /etc/etcd/{{ cluster_name }}-etcd.key
     owner: root
     group: root
     mode: '0600'
@@ -95,3 +95,10 @@
   systemd:
     state: started
     name: etcd
+
+# After etcd has started, the following command can be used to check:
+# sudo ETCDCTL_API=3 etcdctl member list \
+#  --endpoints=https://127.0.0.1:2379 \
+#  --cacert=/etc/etcd/{{ cluster_name }}-ca.crt \
+#  --cert=/etc/etcd/{{ cluster_name }}-etcd.crt \
+#  --key=/etc/etcd/{{ cluster_name }}-etcd.key
