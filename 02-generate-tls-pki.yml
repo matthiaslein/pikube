@@ -3,4 +3,4 @@
   hosts: localhost
   user: "{{ deploy_user }}"
   roles:
-    - generate-ssl-pki
+    - generate-tls-pki

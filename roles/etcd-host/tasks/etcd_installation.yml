@@ -73,7 +73,7 @@
 - name: Copy etcd configuration to the node
   become: true
   copy:
-    src: configuration/etcd-{{ inventory_hostname }}.config
+    src: configuration/etcd-{{ inventory_hostname }}_service
     dest: /etc/systemd/system/etcd.service
     owner: root
     group: root

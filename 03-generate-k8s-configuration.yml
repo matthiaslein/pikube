@@ -11,3 +11,9 @@
   roles:
     - generate-etcd-configuration
 
+- name: Generate master configuration
+  hosts: masters
+  user: "{{ deploy_user }}"
+  roles:
+    - generate-master-configuration
+

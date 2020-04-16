@@ -1,0 +1,194 @@
+# Install K8s binaries
+# Documentation at
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
+- name: Copy kube-apiserver binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-apiserver
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kube-controller-manager binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-controller-manager
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kube-scheduler binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-scheduler
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kubectl binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubectl
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create /var/lib/kubernetes/ directory
+  become: true
+  file:
+    path: /var/lib/kubernetes/
+    state: directory
+
+- name: Copy CA certificate to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-ca.crt
+    dest: /var/lib/kubernetes/{{ cluster_name }}-ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy CA key to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-ca.key
+    dest: /var/lib/kubernetes/{{ cluster_name }}-ca.key
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy kube-apiserver certificate to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-kube-apiserver.crt
+    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-apiserver.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy kube-apiserver key to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-kube-apiserver.key
+    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-apiserver.key
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy service-account certificate to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-service-account.crt
+    dest: /var/lib/kubernetes/{{ cluster_name }}-service-account.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy service-account key to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-service-account.key
+    dest: /var/lib/kubernetes/{{ cluster_name }}-service-account.key
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy etcd-server certificate to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-etcd.crt
+    dest: /var/lib/kubernetes/{{ cluster_name }}-etcd.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy etcd-server key to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-etcd.key
+    dest: /var/lib/kubernetes/{{ cluster_name }}-etcd.key
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy encryption config to k8s configuration
+  become: true
+  copy:
+    src: configuration/encryption-config.yaml
+    dest: /var/lib/kubernetes/encryption-config.yaml
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy kube-apiserver.service configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-apiserver-{{ inventory_hostname }}_service
+    dest: /etc/systemd/system/kube-apiserver.service
+    owner: root
+    group: root
+
+- name: Copy kube-controller-manager.kubeconfig configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-controller-manager.kubeconfig
+    dest: /var/lib/kubernetes/kube-controller-manager.kubeconfig
+    owner: root
+    group: root
+
+- name: Copy kube-scheduler.service configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-scheduler_service
+    dest: /etc/systemd/kube-scheduler.service
+    owner: root
+    group: root
+
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: enable kube-apiserver
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: kube-apiserver
+
+- name: start kube-apiserver
+  become: true
+  systemd:
+    state: started
+    name: kube-apiserver
+
+- name: enable kube-controller-manager
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: kube-controller-manager
+
+- name: start kube-controller-manager
+  become: true
+  systemd:
+    state: started
+    name: kube-controller-manager
+
+- name: enable kube-scheduler
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: kube-scheduler
+
+- name: start kube-scheduler
+  become: true
+  systemd:
+    state: started
+    name: kube-scheduler

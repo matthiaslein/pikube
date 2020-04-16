@@ -1,6 +1,0 @@
-# entry point for creating new SSL keys
-- name: Ansible create file if it doesn't exist example
-  delegate_to: localhost
-  file:
-    path: "{{ inventory_hostname }}.txt"
-    state: touch

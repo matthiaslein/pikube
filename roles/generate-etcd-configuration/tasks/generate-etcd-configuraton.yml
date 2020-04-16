@@ -16,5 +16,5 @@
 - name: Create etcd configuration file
   delegate_to: localhost
   template:
-    src: templates/etcd_config.j2
-    dest: configuration/etcd-{{ inventory_hostname }}.config
+    src: templates/etcd_service.j2
+    dest: configuration/etcd-{{ inventory_hostname }}_service

@@ -4,6 +4,7 @@ deploy_user: "{{ cluster_name }}-deployer"
 os_used: Ubuntu
 os_version: "19.10"
 
+k8s_version: "1.17.4"
 k8s_crio_version: 1.17
 
 etcd_version: v3.4.7
