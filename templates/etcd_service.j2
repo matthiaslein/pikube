@@ -3,7 +3,8 @@ Description=etcd
 Documentation=https://github.com/coreos
 
 [Service]
-EnvironmentFile=/etc/etcd/etcd.conf
+Environment=ETCD_UNSUPPORTED_ARCH=arm64
+Type=notify
 ExecStart=/usr/local/bin/etcd \
   --name {{ inventory_hostname }} \
   --cert-file=/etc/etcd/{{ cluster_name }}-etcd.crt \

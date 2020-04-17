@@ -80,6 +80,24 @@
     group: root
     mode: '0600'
 
+- name: Copy kube-scheduler certificate to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-kube-scheduler.crt
+    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-scheduler.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy kube-scheduler key to k8s configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-kube-scheduler.key
+    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-scheduler.key
+    owner: root
+    group: root
+    mode: '0600'
+
 - name: Copy service-account certificate to k8s configuration
   become: true
   copy:
@@ -141,13 +159,38 @@
     owner: root
     group: root
 
+- name: Copy kube-controller-manager.service configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-controller-manager_service
+    dest: /etc/systemd/system/kube-controller-manager.service
+    owner: root
+    group: root
+
+- name: Copy kube-scheduler.kubeconfig configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-scheduler.kubeconfig
+    dest: /var/lib/kubernetes/kube-scheduler.kubeconfig
+    owner: root
+    group: root
+
 - name: Copy kube-scheduler.service configuration to the node
   become: true
   copy:
     src: configuration/kube-scheduler_service
-    dest: /etc/systemd/kube-scheduler.service
+    dest: /etc/systemd/system/kube-scheduler.service
     owner: root
     group: root
+
+- name: Copy admin.kubeconfig configuration to the node
+  become: true
+  copy:
+    src: configuration/admin.kubeconfig
+    dest: /var/lib/kubernetes/admin.kubeconfig
+    owner: root
+    group: root
+    mode: '0600'
 
 - name: systemd reload
   become: true

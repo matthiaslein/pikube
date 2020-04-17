@@ -7,11 +7,11 @@
 
 - name: Create etcd cluster string
   set_fact:
-    etcd_cluster_member: "https://{{ ansible_host }}:2380"
+    etcd_servers: "https://{{ ansible_host }}:2379"
 
 - name: Assemble etcd cluster string
   set_fact:
-    etcd_cluster: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['etcd_cluster_member']) | join(',') }}"
+    etcd_cluster: "{{ groups['masters'] | map('extract', hostvars, ['etcd_servers']) | join(',') }}"
 
 - name: Create kube-apiserver.service configuration files
   delegate_to: localhost

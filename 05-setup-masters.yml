@@ -1,5 +1,5 @@
 # High level instructions for which tasks apply to which hosts
-- name: Setup etcd hosts
+- name: Setup master nodes
   hosts: masters
   user: "{{ deploy_user }}"
   roles:
