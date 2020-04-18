@@ -1,0 +1,12 @@
+- name: Run on all hosts
+  hosts: all
+  user: "{{ deploy_user }}"
+  roles:
+    - common
+  tasks:
+    - name: Reboot systems that need it
+      become: true
+      shell: /sbin/shutdown -r now
+      async: 300
+      poll: 0
+      ignore_errors: true

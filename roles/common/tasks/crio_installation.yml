@@ -111,6 +111,15 @@
     backrefs: yes # w/o this, the operation isn't idempotent'
   when: crio_installed.changed == True
 
+- name: Copy crictl binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/crictl
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: systemd reload
   become: true
   systemd:

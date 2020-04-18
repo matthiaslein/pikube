@@ -5,3 +5,16 @@
     pkg:
     - python3-apt
     - unzip
+
+- name: make sure cgroups are enabled
+  become: true
+  template:
+    src: templates/cmdline.j2
+    dest: /boot/firmware/nobtcmd.txt
+
+- name: make sure cgroups are enabled
+  become: true
+  template:
+    src: templates/cmdline.j2
+    dest: /boot/firmware/btcmd.txt
+

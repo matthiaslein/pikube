@@ -1,0 +1,30 @@
+# Downloading crictl and install
+# Documentation at
+# https://medium.com/@raghwendrasingh1819/diy-kubernetes-cluster-with-cri-o-container-runtime-ubuntu-xenial-53e967c33dd9
+
+- name: Check if crictl download is required
+  stat:
+    path: packages/crictl-{{ k8s_crio_version }}-linux-arm64.tar.gz
+  register: crictl_downloaded
+
+- name: Create directory for crictl installation
+  file:
+    path: packages
+    state: directory
+  when: crictl_downloaded.stat.exists == False
+
+- name: Download crictl {{ k8s_crio_version }} package
+  get_url:
+    url: https://github.com/kubernetes-sigs/cri-tools/releases/download/v{{ k8s_crio_version }}.0/crictl-v{{ k8s_crio_version }}.0-linux-arm64.tar.gz
+    dest: packages
+  when: crictl_downloaded.stat.exists == False
+
+- name: Check if crictl archive unpack is required
+  stat:
+    path: packages/crictl-v{{ k8s_crio_version }}.0-linux-arm64
+  register: crictl_unpacked
+
+# unarchive module would be better, it's' currently buggy and can't handle tgz'
+- name: Extract crictl {{ k8s_crio_version }} package
+  shell: "cd packages ; tar xzf crictl-v{{ k8s_crio_version }}.0-linux-arm64.tar.gz"
+  when: crictl_unpacked.stat.exists == False
