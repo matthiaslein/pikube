@@ -1,8 +1,6 @@
 - name: Run on all hosts
   hosts: all
   user: "{{ deploy_user }}"
-  roles:
-    - common
   tasks:
     - name: Reboot systems that need it
       become: true
