@@ -1,0 +1,93 @@
+# Install K8s binaries
+# Documentation at
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
+- name: Copy kube-apiserver binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-apiserver
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kube-controller-manager binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-controller-manager
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kube-scheduler binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-scheduler
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kubectl binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubectl
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kubeadm binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubeadm
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kubelet binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubelet
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kubeservice.service configuration to the node
+  become: true
+  copy:
+    src: configuration/kubelet_service
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: enable kubelet
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: kubelet
+
+- name: start kubelet
+  become: true
+  systemd:
+    state: started
+    name: kubelet
+
+- name: Copy k8s mounter binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/mounter
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+

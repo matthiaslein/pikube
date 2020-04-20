@@ -5,6 +5,7 @@
     pkg:
     - python3-apt
     - unzip
+    - socat
 
 - name: make sure cgroups are enabled
   become: true

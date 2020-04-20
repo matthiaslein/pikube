@@ -21,16 +21,12 @@
   modprobe:
     name: overlay
     state: present
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: Add the br_netfilter module
   become: true
   modprobe:
     name: br_netfilter
     state: present
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 1
   become: true
@@ -40,8 +36,6 @@
     state: present
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 2
   become: true
@@ -51,8 +45,6 @@
     state: present
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: 99-kubernetes-cri.conf 3
   become: true
@@ -62,8 +54,6 @@
     state: present
     sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
     reload: yes
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: add crio apt-key for {{ os_used }} {{ os_version }}
   become: true

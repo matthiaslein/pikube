@@ -1,4 +1,5 @@
 # include other YAML files with tasks here
+- include: generate_kubelet_config.yml
 - include: generate_kube-proxy_kubeconfig.yml
 - include: generate_kube-controller-manager_kubeconfig.yml
 - include: generate_kube-scheduler_kubeconfig.yml

@@ -4,3 +4,4 @@
 - include: set_ssh_key.yml
 - include: set_hostname.yml
 - include: crio_installation.yml
+- include: k8s_binaries_installation.yml
