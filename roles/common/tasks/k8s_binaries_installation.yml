@@ -56,7 +56,7 @@
     group: root
     mode: '0755'
 
-- name: Copy kubeservice.service configuration to the node
+- name: Copy kubelet.service configuration to the node
   become: true
   copy:
     src: configuration/kubelet_service
