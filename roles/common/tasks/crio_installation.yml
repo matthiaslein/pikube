@@ -79,16 +79,19 @@
     name: cri-o-{{ k8s_crio_version }}
     state: present
     update_cache: yes
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
-  register: crio_installed
 
 - name: fix/hold crio to version {{ k8s_crio_version }}
   become: true
   dpkg_selections:
     name: cri-o-{{ k8s_crio_version }}
     selection: hold
-  when: crio_installed.changed == True
+
+- name: install crio runc
+  become: true
+  apt:
+    name: cri-o-runc
+    state: present
+    update_cache: yes
 
 # Fix for a known issue, probably not needed in the future
 # https://github.com/cri-o/cri-o/issues/3504
@@ -99,7 +102,22 @@
     regexp: 'apparmor_profile = "crio-default"' 
     line: 'apparmor_profile = "crio-default-{{ k8s_crio_version }}.2"'
     backrefs: yes # w/o this, the operation isn't idempotent'
-  when: crio_installed.changed == True
+
+- name: Enable CPU accounting
+  become: true
+  lineinfile: 
+    path: /etc/systemd/system.conf
+    regexp: '#DefaultCPUAccounting=no' 
+    line: 'DefaultCPUAccounting=yes'
+    backrefs: yes # w/o this, the operation isn't idempotent'
+
+- name: Enable BlockIO accounting
+  become: true
+  lineinfile: 
+    path: /etc/systemd/system.conf
+    regexp: '#DefaultBlockIOAccounting=no' 
+    line: 'DefaultBlockIOAccounting=yes'
+    backrefs: yes # w/o this, the operation isn't idempotent'
 
 - name: Copy crictl binary to /usr/local/bin
   become: true
@@ -110,11 +128,17 @@
     group: root
     mode: '0755'
 
+- name: install container networking plugins - CNI
+  become: true
+  apt:
+    name: containernetworking-plugins
+    state: present
+    update_cache: yes
+
 - name: systemd reload
   become: true
   systemd:
     daemon_reload: yes
-  when: crio_installed.changed == True
 
 - name: enable crio
   become: true
@@ -122,11 +146,9 @@
     enabled: yes
     name: crio
     masked: no
-  when: crio_installed.changed == True
 
 - name: start crio
   become: true
   systemd:
     state: started
     name: crio
-  when: crio_installed.changed == True
