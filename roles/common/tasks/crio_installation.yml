@@ -4,18 +4,6 @@
 # https://github.com/cri-o/cri-o
 # https://medium.com/@raghwendrasingh1819/diy-kubernetes-cluster-with-cri-o-container-runtime-ubuntu-xenial-53e967c33dd9
 
-# Currently the package_facts module is broken...
-#- name: Gather installed packages
-#  package_facts:
-#    manager: auto
-#  register: facts
-
-# Workaround for broken package_facts module
-- name: Check if crio {{ k8s_crio_version }} is installed
-  shell: dpkg --list | grep cri-o-{{ k8s_crio_version }}
-  register: crio_pkg
-  ignore_errors: yes
-
 - name: Add the overlay module
   become: true
   modprobe:
@@ -60,8 +48,6 @@
   apt_key:
     url: "https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable/x{{ os_used }}_{{ os_version }}/Release.key"
     state: present
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: add crio apt repository {{ os_used }} {{ os_version }}
   become: true
@@ -70,8 +56,6 @@
     state: present
     filename: devel:kubic:libcontainers:stable.list
     update_cache: yes
-  when: crio_pkg.rc != 0
-  #when: '"cri-o-{{ k8s_crio_version }}" not in ansible_facts.packages'
 
 - name: install crio {{ k8s_crio_version }}
   become: true
@@ -90,6 +74,13 @@
   become: true
   apt:
     name: cri-o-runc
+    state: present
+    update_cache: yes
+
+- name: install podman
+  become: true
+  apt:
+    name: podman
     state: present
     update_cache: yes
 
