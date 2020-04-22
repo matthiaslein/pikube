@@ -57,32 +57,33 @@
     filename: devel:kubic:libcontainers:stable.list
     update_cache: yes
 
-- name: install crio {{ k8s_crio_version }}
+- name: install crio {{ crio_version }}
   become: true
   apt:
-    name: cri-o-{{ k8s_crio_version }}
+    name: cri-o-{{ crio_version }}
     state: present
     update_cache: yes
 
-- name: fix/hold crio to version {{ k8s_crio_version }}
-  become: true
-  dpkg_selections:
-    name: cri-o-{{ k8s_crio_version }}
-    selection: hold
-
-- name: install crio runc
+- name: install crio runc, podman and skopeo
   become: true
   apt:
-    name: cri-o-runc
-    state: present
-    update_cache: yes
-
-- name: install podman
-  become: true
-  apt:
-    name: podman
-    state: present
-    update_cache: yes
+    pkg:
+    - cri-o-runc
+    - cri-tools
+    - podman
+    - podman-plugins
+    - skopeo
+    - catatonit
+    - fuse-overlayfs
+    - conmon
+    - containers-common
+    - containers-golang
+    - containers-image
+    - containernetworking-plugins
+    - libslirp0
+    - slirp4netns
+    - uidmap
+    - varlink
 
 # Fix for a known issue, probably not needed in the future
 # https://github.com/cri-o/cri-o/issues/3504
@@ -91,7 +92,7 @@
   lineinfile: 
     path: /etc/crio/crio.conf
     regexp: 'apparmor_profile = "crio-default"' 
-    line: 'apparmor_profile = "crio-default-{{ k8s_crio_version }}.2"'
+    line: 'apparmor_profile = "crio-default-{{ crio_version }}.2"'
     backrefs: yes # w/o this, the operation isn't idempotent'
 
 - name: Enable CPU accounting
@@ -109,22 +110,6 @@
     regexp: '#DefaultBlockIOAccounting=no' 
     line: 'DefaultBlockIOAccounting=yes'
     backrefs: yes # w/o this, the operation isn't idempotent'
-
-- name: Copy crictl binary to /usr/local/bin
-  become: true
-  copy:
-    src: packages/crictl
-    dest: /usr/local/bin
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: install container networking plugins - CNI
-  become: true
-  apt:
-    name: containernetworking-plugins
-    state: present
-    update_cache: yes
 
 - name: systemd reload
   become: true
