@@ -7,8 +7,8 @@
 
 - name: Download k8s {{ k8s_version }} server package
   get_url:
-    url: https://dl.k8s.io/v{{ k8s_version }}/kubernetes-server-linux-arm64.tar.gz
-    dest: packages/kubernetes-server-v{{ k8s_version }}-linux-arm64.tar.gz
+    url: https://dl.k8s.io/{{ k8s_version }}/kubernetes-server-linux-arm64.tar.gz
+    dest: packages/kubernetes-server-{{ k8s_version }}-linux-arm64.tar.gz
   when: k8s_server_downloaded.stat.exists == False
 
 - name: Check if k8s {{ k8s_version }} server archive unpack is required
@@ -24,5 +24,5 @@
 
 # unarchive module would be better, it's' currently buggy and can't handle tgz'
 - name: Extract k8s server {{ k8s_version }} package
-  shell: "cd packages ; tar xzf kubernetes-server-v{{ k8s_version }}-linux-arm64.tar.gz -C k8s-{{ k8s_version }}-server"
+  shell: "cd packages ; tar xzf kubernetes-server-{{ k8s_version }}-linux-arm64.tar.gz -C k8s-{{ k8s_version }}-server"
   when: k8s_server_unpacked.stat.exists == False
