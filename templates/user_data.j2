@@ -1,0 +1,28 @@
+#cloud-config
+
+## Update apt database and upgrade packages on first boot
+package_update: true
+package_upgrade: true
+
+# Set your hostname here
+hostname: {{ inventory_hostname }}
+
+# Create secure deployment user
+users:
+  - name: {{ deployer_account }}
+    gecos: "{{ deploy_user }} Account"
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    groups: users,adm,dialout,audio,plugdev,netdev,video
+    ssh-import-id: None
+    lock_passwd: true
+    ssh-authorized-keys:
+      - {{ ssh_authorized_key }}
+
+# Reboot when the initial setup is done
+power_state:
+ delay: "+15"
+ mode: reboot
+ message: Bye Bye
+ timeout: 120
+ condition: True

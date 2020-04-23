@@ -1,5 +1,9 @@
 # pikube
 
+Docomentation for Ubuntu on Raspberry Pi is at:
+https://wiki.ubuntu.com/ARM/RaspberryPi
+https://ubuntu.com/download/raspberry-pi
+
 Running kubernetes on raspberry pi
 
 1. Clone this repository

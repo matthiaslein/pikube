@@ -6,5 +6,4 @@
 - include: generate_admin_kubeconfig.yml
 - include: generate_encryption_config.yml
 - include: etcd_download.yml
-- include: crictl_download.yml
 - include: k8s_download.yml
