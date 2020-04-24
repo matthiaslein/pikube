@@ -6,6 +6,8 @@
     - python3-apt
     - runc
     - socat
+    - conntrack
+    - ipset
 
 - name: make sure cgroups are enabled
   become: true
