@@ -126,4 +126,4 @@ power_state:
 EOF
   echo ""
 
-done < hosts
+done < nodes
