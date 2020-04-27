@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export CLUSTER_NAME="pikube"
+export CLUSTER_TIMEZONE="Europe/Berlin"
 export DEPLOYER="pikube-deployer"
 export AUTHORIZED_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJoD6Z60/Ceuc6X4Tex3I09na/B0TnUFCsth4V2uZjg/ matthias.lein@gmail.com"
 
@@ -68,15 +69,23 @@ do
   cat > configuration/user-data-${HOST} << EOF
 #cloud-config
 
-# On first boot, set the (default) ubuntu user's password to "ubuntu" and
-# expire user passwords
-chpasswd:
-  expire: true
-  list:
-  - ubuntu:ubuntu
+# Configure sudo user for deployment
+users:
+  - default
+  - name: ${DEPLOYER}
+    gecos: "${CLUSTER_NAME} deployer account"
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+    groups: users,adm,dialout,audio,plugdev,netdev,video
+    lock_passwd: true
+    ssh-authorized-keys:
+      - {AUTHORIZED_KEY}
 
 # Set hostname
 hostname: ${HOST}
+
+# Set timezone
+timezone: "${CLUSTER_TIMEZONE}"
 
 # Configure ssh server keys
 ssh_deletekeys: true
@@ -109,10 +118,10 @@ users:
 
 # Reboot when the initial setup is done
 power_state:
- delay: "+2"
+ delay: "+1"
  mode: reboot
  message: Bye Bye
- timeout: 120
+ timeout: 60
  condition: True
 EOF
   echo ""
