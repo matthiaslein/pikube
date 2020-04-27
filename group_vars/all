@@ -2,7 +2,7 @@ cluster_name: pikube
 deploy_user: "{{ cluster_name }}-deployer"
 
 os_used: Ubuntu
-os_version: "19.10"
+os_version: "20.04"
 
 #k8s_version: "v1.18.2"
 k8s_version: "v1.17.4"
