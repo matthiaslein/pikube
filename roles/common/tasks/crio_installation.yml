@@ -4,13 +4,27 @@
 # https://github.com/cri-o/cri-o
 # https://medium.com/@raghwendrasingh1819/diy-kubernetes-cluster-with-cri-o-container-runtime-ubuntu-xenial-53e967c33dd9
 
-- name: Add the overlay module
+- name: Enable the overlay module
+  become: true
+  lineinfile: 
+    path: /etc/modules-load.d/modules.conf
+    line: 'overlay'
+    state: present
+
+- name: Load the overlay module
   become: true
   modprobe:
     name: overlay
     state: present
 
-- name: Add the br_netfilter module
+- name: Enable the br_netfilter module
+  become: true
+  lineinfile: 
+    path: /etc/modules-load.d/modules.conf
+    line: 'br_netfilter'
+    state: present
+
+- name: Load the br_netfilter module
   become: true
   modprobe:
     name: br_netfilter
