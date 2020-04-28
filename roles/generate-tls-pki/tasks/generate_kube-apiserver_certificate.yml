@@ -31,7 +31,7 @@
       - clientAuth
       - serverAuth
     subject: "CN=kube-apiserver/O=system:masters"
-    subject_alt_name: "DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }}"
+    subject_alt_name: "DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }},IP:127.0.0.1"
   when: ca_exists.stat.exists == True
 
 - name: Sign the kube-apiserver key with CA to obtain kube-apiserver cert

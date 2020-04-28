@@ -14,7 +14,7 @@
 
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
-    path: "certificates/{{ cluster_name }}.csr"
+    path: "certificates/{{ cluster_name }}-ca.csr"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     subject: "CN={{ cluster_name }}-ca"
     organization_name: "{{ cluster_name }}"
@@ -35,7 +35,7 @@
   openssl_certificate:
     path: "certificates/{{ cluster_name }}-ca.crt"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
-    csr_path: "certificates/{{ cluster_name }}.csr"
+    csr_path: "certificates/{{ cluster_name }}-ca.csr"
     provider: selfsigned
 
 # After the certificate is generated, check it with the following command:
