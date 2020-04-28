@@ -12,17 +12,11 @@
     size: 2048
     type: RSA
 
-- name: Check if certificate authority exists
-  stat:
-    path: "certificates/{{ cluster_name }}-ca.key"
-  register: ca_exists
-
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{ cluster_name }}-kube-controller-manager.csr"
     privatekey_path: "certificates/{{ cluster_name }}-kube-controller-manager.key"
     subject: "CN=system:kube-controller-manager"
-  when: ca_exists.stat.exists == True
 
 - name: Sign the kube-controller-manager key with CA to obtain kube-controller-manager certificate
   openssl_certificate:
@@ -31,4 +25,3 @@
     ownca_path: "certificates/{{ cluster_name }}-ca.crt"
     ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     provider: ownca
-  when: ca_exists.stat.exists == True

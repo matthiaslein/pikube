@@ -12,17 +12,11 @@
     size: 2048
     type: RSA
 
-- name: Check if certificate authority exists
-  stat:
-    path: "certificates/{{ cluster_name }}-ca.key"
-  register: ca_exists
-
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{ cluster_name }}-admin.csr"
     privatekey_path: "certificates/{{ cluster_name }}-admin.key"
-    subject: "CN=admin/O=system:masters"
-  when: ca_exists.stat.exists == True
+    subject: "CN=admin,O=system:masters"
 
 - name: Sign the admin key with CA to obtain admin certificate
   openssl_certificate:
@@ -31,4 +25,4 @@
     ownca_path: "certificates/{{ cluster_name }}-ca.crt"
     ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     provider: ownca
-  when: ca_exists.stat.exists == True
+

@@ -12,11 +12,6 @@
     size: 2048
     type: RSA
 
-- name: Check if certificate authority exists
-  stat:
-    path: "certificates/{{ cluster_name }}-ca.key"
-  register: ca_exists
-  
 - name: Generate an OpenSSL Certificate Signing Request
   openssl_csr:
     path: "certificates/{{ cluster_name }}-etcd.csr"
@@ -27,7 +22,6 @@
       - keyEncipherment
     subject: "CN=etcd-server"
     subject_alt_name: "{{ etcd_ips }},IP:127.0.0.1,{{ etcd_names }}"
-  when: ca_exists.stat.exists == True
 
 - name: Sign the etcd key with CA to obtain etcd certificate
   openssl_certificate:
@@ -36,4 +30,3 @@
     ownca_path: "certificates/{{ cluster_name }}-ca.crt"
     ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     provider: ownca
-  when: ca_exists.stat.exists == True
