@@ -84,8 +84,8 @@
 - name: start etcd
   become: true
   systemd:
-    state: started
+    state: restarted
     name: etcd
 
-# After etcd has started, the following command can be used to check:
+# After etcd has restarted, the following command can be used to check:
 # sudo ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/etcd/{{ cluster_name }}-ca.crt --cert=/etc/etcd/{{ cluster_name }}-etcd.crt --key=/etc/etcd/{{ cluster_name }}-etcd.key member list

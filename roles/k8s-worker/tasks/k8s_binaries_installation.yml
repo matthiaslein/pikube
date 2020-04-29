@@ -105,7 +105,7 @@
 - name: start kubelet
   become: true
   systemd:
-    state: started
+    state: restarted
     name: kubelet
 
 - name: Copy kube-proxy.service configuration to the node
@@ -148,5 +148,5 @@
 - name: start kube-proxy
   become: true
   systemd:
-    state: started
+    state: restarted
     name: kube-proxy

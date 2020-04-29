@@ -198,7 +198,7 @@
 - name: start kube-apiserver
   become: true
   systemd:
-    state: started
+    state: restarted
     name: kube-apiserver
 
 - name: enable kube-controller-manager
@@ -211,7 +211,7 @@
 - name: start kube-controller-manager
   become: true
   systemd:
-    state: started
+    state: restarted
     name: kube-controller-manager
 
 - name: enable kube-scheduler
@@ -224,7 +224,7 @@
 - name: start kube-scheduler
   become: true
   systemd:
-    state: started
+    state: restarted
     name: kube-scheduler
 
 - name: Create  ~{{ deploy_user }}/.kube directory

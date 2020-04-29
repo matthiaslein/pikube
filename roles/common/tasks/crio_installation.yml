@@ -148,5 +148,5 @@
 - name: start crio
   become: true
   systemd:
-    state: started
+    state: restarted
     name: crio
