@@ -27,6 +27,12 @@
     path: /var/lib/kubelet
     state: directory
 
+- name: Create /var/lib/kubelet/pods directory
+  become: true
+  file:
+    path: /var/lib/kubelet/pods
+    state: directory
+
 - name: Create /var/lib/kube-proxy directory
   become: true
   file:
@@ -108,6 +114,7 @@
     dest: /var/lib/kube-proxy/kubeconfig
     owner: root
     group: root
+    mode: '0600'
 
 - name: Copy kube-proxy-config.yaml configuration to the node
   become: true

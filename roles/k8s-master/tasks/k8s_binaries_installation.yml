@@ -228,17 +228,13 @@
     name: kube-scheduler
 
 - name: Create  ~{{ deploy_user }}/.kube directory
-  become: true
   file:
     path: ~{{ deploy_user }}/.kube
     state: directory
 
 - name: Copy admin kubeconfig to ~{{ deploy_user }}/.kube/config
-  become: true
   copy:
     src: configuration/admin.kubeconfig
     dest: ~{{ deploy_user }}/.kube/config
-    owner: root
-    group: root
     mode: '0600'
 
