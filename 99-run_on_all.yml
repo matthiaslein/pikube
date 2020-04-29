@@ -2,37 +2,9 @@
   hosts: all
   user: "{{ deploy_user }}"
   tasks:
-    - name: Disable Services
+   - name: Reboot system
       become: true
-      systemd:
-      name:
-        - kube-apiserver
-        - kube-scheduler
-        - kube-controller-manager
-        - kubelet
-        - kube-proxy
-      enabled: no
-      masked: no
-
-    - name: Stop Services
-      become: true
-      systemd:
-      state: stopped
-      name:
-        - kube-apiserver
-        - kube-scheduler
-        - kube-controller-manager
-        - kubelet
-        - kube-proxy
-
-    - name: systemd reload
-      become: true
-      systemd:
-      daemon_reload: yes
-
-#   - name: Reboot system
-#      become: true
-#      shell: /sbin/shutdown -r now
-#      async: 300
-#      poll: 0
-#      ignore_errors: true
+      shell: /sbin/shutdown -r now
+      async: 300
+      poll: 0
+      ignore_errors: true
