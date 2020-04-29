@@ -5,12 +5,14 @@
     - name: Disable Services
       become: true
       systemd:
-      enabled: no
-      masked: no
       name:
         - kube-apiserver
         - kube-scheduler
         - kube-controller-manager
+        - kubelet
+        - kube-proxy
+      enabled: no
+      masked: no
 
     - name: Stop Services
       become: true
@@ -20,6 +22,8 @@
         - kube-apiserver
         - kube-scheduler
         - kube-controller-manager
+        - kubelet
+        - kube-proxy
 
     - name: systemd reload
       become: true

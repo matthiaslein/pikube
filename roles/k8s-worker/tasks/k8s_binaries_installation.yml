@@ -1,0 +1,136 @@
+# Install K8s binaries
+# Documentation at
+# https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
+# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
+
+- name: Copy kubelet binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubelet
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Copy kube-proxy binary to /usr/local/bin
+  become: true
+  copy:
+    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-proxy
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create /var/lib/kubelet directory
+  become: true
+  file:
+    path: /var/lib/kubelet
+    state: directory
+
+- name: Create /var/lib/kube-proxy directory
+  become: true
+  file:
+    path: /var/lib/kube-proxy
+    state: directory
+
+- name: Copy worker key to kubelet configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.key
+    dest: /var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.key
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Copy worker certificate to kubelet configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt
+    dest: /var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy kubelet.service configuration to the node
+  become: true
+  copy:
+    src: configuration/kubelet-{{ inventory_hostname }}_service
+    dest: /etc/systemd/system/kubelet.service
+    owner: root
+    group: root
+
+- name: Copy kubelet kubeconfig to the node
+  become: true
+  copy:
+    src: configuration/{{ inventory_hostname }}.kubeconfig
+    dest: /var/lib/kubelet/kubeconfig
+    owner: root
+    group: root
+
+- name: Copy kubelet-config.yaml configuration to the node
+  become: true
+  copy:
+    src: configuration/kubelet-config.yaml
+    dest: /var/lib/kubelet/kubelet-config.yaml
+    owner: root
+    group: root
+
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: enable kubelet
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: kubelet
+
+- name: start kubelet
+  become: true
+  systemd:
+    state: started
+    name: kubelet
+
+- name: Copy kube-proxy.service configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-proxy_service
+    dest: /etc/systemd/system/kube-proxy.service
+    owner: root
+    group: root
+
+- name: Copy kube-proxy kubeconfig to the node
+  become: true
+  copy:
+    src: configuration/kube-proxy.kubeconfig
+    dest: /var/lib/kube-proxy/kubeconfig
+    owner: root
+    group: root
+
+- name: Copy kube-proxy-config.yaml configuration to the node
+  become: true
+  copy:
+    src: configuration/kube-proxy-config.yaml
+    dest: /var/lib/kube-proxy/kube-proxy-config.yaml
+    owner: root
+    group: root
+
+- name: systemd reload
+  become: true
+  systemd:
+    daemon_reload: yes
+
+- name: enable kube-proxy
+  become: true
+  systemd:
+    enabled: yes
+    masked: no
+    name: kube-proxy
+
+- name: start kube-proxy
+  become: true
+  systemd:
+    state: started
+    name: kube-proxy

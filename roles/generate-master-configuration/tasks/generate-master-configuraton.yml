@@ -28,5 +28,7 @@
 - name: Create kube-scheduler.service configuration files
   delegate_to: localhost
   template:
+    owner: {{ deploy_user }}
+    group: {{ deploy_user }}
     src: templates/kube-scheduler_service.j2
     dest: configuration/kube-scheduler_service

@@ -17,3 +17,8 @@
   roles:
     - generate-master-configuration
 
+- name: Generate worker configuration
+  hosts: workers
+  user: "{{ deploy_user }}"
+  roles:
+    - generate-worker-configuration

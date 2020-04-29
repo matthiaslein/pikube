@@ -29,15 +29,6 @@
     group: root
     mode: '0755'
 
-- name: Copy kubectl binary to /usr/local/bin
-  become: true
-  copy:
-    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubectl
-    dest: /usr/local/bin
-    owner: root
-    group: root
-    mode: '0755'
-
 - name: Create /var/lib/kubernetes/ directory
   become: true
   file:
@@ -235,3 +226,19 @@
   systemd:
     state: started
     name: kube-scheduler
+
+- name: Create  ~{{ deploy_user }}/.kube directory
+  become: true
+  file:
+    path: ~{{ deploy_user }}/.kube
+    state: directory
+
+- name: Copy admin kubeconfig to ~{{ deploy_user }}/.kube/config
+  become: true
+  copy:
+    src: configuration/admin.kubeconfig
+    dest: ~{{ deploy_user }}/.kube/config
+    owner: root
+    group: root
+    mode: '0600'
+

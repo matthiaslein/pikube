@@ -1,0 +1,97 @@
+# entry point for creating K8s configuration files
+- name: Create directory for configuration files
+  delegate_to: localhost
+  file:
+    path: configuration
+    state: directory
+
+- name: Create directory for certificates
+  delegate_to: localhost
+  file:
+    path: certificates
+    state: directory
+
+- name: Generate an OpenSSL 2048 bit private RSA key for worker
+  delegate_to: localhost
+  openssl_privatekey:
+    path: "certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.key"
+    size: 2048
+    type: RSA
+
+- name: Generate an OpenSSL Certificate Signing Request for worker
+  delegate_to: localhost
+  openssl_csr:
+    path: "certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.csr"
+    privatekey_path: "certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.key"
+    key_usage:
+      - digitalSignature
+      - nonRepudiation
+      - keyAgreement
+      - dataEncipherment
+      - keyEncipherment
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+    subject: "CN=system:node:{{ inventory_hostname }},O=system:nodes"
+    subject_alt_name: "DNS:{{ inventory_hostname }},IP:{{ ansible_host }}"
+
+- name: Sign the worker key with CA to obtain worker cert
+  delegate_to: localhost
+  openssl_certificate:
+    path: "certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt"
+    csr_path: "certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.csr"
+    ownca_path: "certificates/{{ cluster_name }}-ca.crt"
+    ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
+    provider: ownca
+
+
+- name: Create kubelet configuration file, step 1
+  delegate_to: localhost
+  shell: "kubectl config set-cluster {{ cluster_name }} \
+    --certificate-authority=certificates/{{ cluster_name }}-ca.crt \
+    --embed-certs=true \
+    --server=https://{{ groups['proxies'][0] }}:6443 \
+    --kubeconfig=configuration/{{ inventory_hostname }}.kubeconfig"
+
+- name: Create kubelet configuration file, step 2
+  delegate_to: localhost
+  shell: "kubectl config set-credentials system:node:{{ inventory_hostname }} \
+    --client-certificate=certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt
+    --client-key=certificates/{{ cluster_name }}-worker-{{ inventory_hostname }}.key
+    --embed-certs=true \
+    --kubeconfig=configuration/{{ inventory_hostname }}.kubeconfig"
+
+- name: Create kubelet configuration file, step 3
+  delegate_to: localhost
+  shell: "kubectl config set-context default \
+    --cluster={{ cluster_name }} \
+    --user=system:node:{{ inventory_hostname }} \
+    --kubeconfig=configuration/{{ inventory_hostname }}.kubeconfig"
+
+- name: Create kubelet configuration file, step 4
+  delegate_to: localhost
+  shell: "kubectl config use-context default --kubeconfig=configuration/{{ inventory_hostname }}.kubeconfig"
+
+- name: Create kubelet-config.yaml configuration files
+  delegate_to: localhost
+  template:
+    src: templates/kubelet_config_yaml.j2
+    dest: configuration/kubelet-config.yaml
+
+- name: Create kubelet.service configuration files
+  delegate_to: localhost
+  template:
+    src: templates/kubelet_service.j2
+    dest: configuration/kubelet-{{ inventory_hostname }}_service
+
+- name: Create kube-proxy-config.yaml configuration files
+  delegate_to: localhost
+  template:
+    src: templates/kube_proxy_config_yaml.j2
+    dest: configuration/kube-proxy-config.yaml
+
+- name: Create kube-proxy.service configuration files
+  delegate_to: localhost
+  template:
+    src: templates/kube-proxy_service.j2
+    dest: configuration/kube-proxy_service
