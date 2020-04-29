@@ -109,6 +109,14 @@
     line: 'apparmor_profile = "crio-default-{{ crio_version }}.2"'
     backrefs: yes # w/o this, the operation isn't idempotent'
 
+- name: Point crio.conf towards CNI plugins
+  become: true
+  lineinfile: 
+    path: /etc/crio/crio.conf
+    regexp: '"/opt/cni/bin/",' 
+    line: '"/opt/cni/bin/", "/usr/lib/cni/"'
+    backrefs: yes # w/o this, the operation isn't idempotent'
+
 - name: Enable CPU accounting
   become: true
   lineinfile: 

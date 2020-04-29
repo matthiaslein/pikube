@@ -7,3 +7,4 @@
 - include: generate_encryption_config.yml
 - include: etcd_download.yml
 - include: k8s_download.yml
+- include: cni_plugin_download.yml
