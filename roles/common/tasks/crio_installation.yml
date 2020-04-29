@@ -101,13 +101,13 @@
 
 # Fix for a known issue, probably not needed in the future
 # https://github.com/cri-o/cri-o/issues/3504
-- name: replace line, Fix cri-o issue 3504
-  become: true
-  lineinfile: 
-    path: /etc/crio/crio.conf
-    regexp: 'apparmor_profile = "crio-default"' 
-    line: 'apparmor_profile = "crio-default-{{ crio_version }}.2"'
-    backrefs: yes # w/o this, the operation isn't idempotent'
+#- name: replace line, Fix cri-o issue 3504
+#  become: true
+#  lineinfile: 
+#    path: /etc/crio/crio.conf
+#    regexp: 'apparmor_profile = "crio-default"' 
+#    line: 'apparmor_profile = "crio-default-{{ crio_version }}.2"'
+#    backrefs: yes # w/o this, the operation isn't idempotent'
 
 - name: Point crio.conf towards CNI plugins
   become: true
