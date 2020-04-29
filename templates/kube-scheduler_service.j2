@@ -8,7 +8,7 @@ ExecStart=/usr/local/bin/kube-scheduler \
   --authentication-kubeconfig=/var/lib/kubernetes/kube-scheduler.kubeconfig \
   --authorization-kubeconfig=/var/lib/kubernetes/kube-scheduler.kubeconfig \
   --address=127.0.0.1 \
-  --leader-elect=true \
+  --leader-elect=true
 Restart=on-failure
 RestartSec=5
 
