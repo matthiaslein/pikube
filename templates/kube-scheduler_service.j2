@@ -5,8 +5,8 @@ Documentation=https://github.com/kubernetes/kubernetes
 [Service]
 ExecStart=/usr/local/bin/kube-scheduler \
   --kubeconfig=/var/lib/kubernetes/kube-scheduler.kubeconfig \
-  --authentication-kubeconfig=/var/lib/kubernetes/admin.kubeconfig \
-  --authorization-kubeconfig=/var/lib/kubernetes/admin.kubeconfig \
+  --authentication-kubeconfig=/var/lib/kubernetes/kube-scheduler.kubeconfig \
+  --authorization-kubeconfig=/var/lib/kubernetes/kube-scheduler.kubeconfig \
   --address=127.0.0.1 \
   --leader-elect=true \
 Restart=on-failure
