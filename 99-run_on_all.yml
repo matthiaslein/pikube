@@ -3,8 +3,8 @@
   user: "{{ deploy_user }}"
   tasks:
    - name: Reboot system
-      become: true
-      shell: /sbin/shutdown -r now
-      async: 300
-      poll: 0
-      ignore_errors: true
+     become: true
+     shell: /sbin/shutdown -r now
+     async: 300
+     poll: 0
+     ignore_errors: true
