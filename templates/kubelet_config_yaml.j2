@@ -6,7 +6,7 @@ authentication:
   webhook:
     enabled: true
   x509:
-    clientCAFile: "/var/lib/kubernetes/ca.crt"
+    clientCAFile: "/var/lib/kubelet/{{ cluster_name }}-ca.crt"
 authorization:
   mode: Webhook
 clusterDomain: "cluster.local"

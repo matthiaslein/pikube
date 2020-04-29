@@ -57,6 +57,15 @@
     group: root
     mode: '0644'
 
+- name: Copy ca certificate to kubelet configuration
+  become: true
+  copy:
+    src: certificates/{{ cluster_name }}-ca.crt
+    dest: /var/lib/kubelet/{{ cluster_name }}-ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Copy kubelet.service configuration to the node
   become: true
   copy:
