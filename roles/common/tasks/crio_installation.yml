@@ -109,6 +109,14 @@
     line: 'apparmor_profile = "crio-default-{{ crio_version }}.2"'
     backrefs: yes # w/o this, the operation isn't idempotent'
 
+- name: Set crio's cgroup manager to systemd
+  become: true
+  lineinfile: 
+    path: /etc/crio/crio.conf
+    regexp: 'cgroup_manager = "cgroupfs"' 
+    line: 'cgroup_manager = "systemd"'
+    backrefs: yes # w/o this, the operation isn't idempotent'
+
 - name: Point crio.conf towards CNI plugins
   become: true
   lineinfile: 
