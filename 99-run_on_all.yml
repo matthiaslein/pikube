@@ -17,6 +17,7 @@
        masked: no
      with_items:
        - crio
+
 - name: Run on etcd hosts
   hosts: etcd_hosts
   user: "{{ deploy_user }}"
@@ -36,6 +37,12 @@
        masked: no
      with_items:
        - etcd
+   - name: Remove etcd database
+     become: true
+     file:
+       path: /var/lib/etcd/member
+       state: absent
+
 - name: Run on masters
   hosts: masters
   user: "{{ deploy_user }}"
@@ -59,6 +66,7 @@
        - kube-apiserver
        - kube-scheduler
        - kube-controller-manager
+
 - name: Run on workers
   hosts: workers
   user: "{{ deploy_user }}"
@@ -80,6 +88,10 @@
      with_items:
        - kubelet
        - kube-proxy
+
+#- name: Reboot all hosts
+#  hosts: all
+#  user: "{{ deploy_user }}"
 #   - name: Reboot system
 #     become: true
 #     shell: /sbin/shutdown -r now
