@@ -14,6 +14,7 @@
   template:
     src: templates/cmdline.j2
     dest: /boot/firmware/cmdline.txt
+  register: cgroups_enabled
 
 - name: make sure cgroups are enabled
   become: true
@@ -27,3 +28,16 @@
     src: templates/cmdline.j2
     dest: /boot/firmware/btcmd.txt
 
+- name: Reboot systems that need it
+  become: true
+  shell: /sbin/shutdown -r now
+  async: 300
+  poll: 0
+  ignore_errors: true
+  when: cgroups_enabled.changed
+
+- name: Wait for rebooted systems to reconnect
+  wait_for_connection:
+    delay: 60
+    timeout: 300
+  when: cgroups_enabled.changed
