@@ -9,24 +9,14 @@
     - conntrack
     - ipset
 
+# This is the right place for Ubuntu 20.04. In earlier versions, the correct
+# file used to be /boot/firmware/btcmd.txt or /boot/firmware/nobtcmd.txt
 - name: make sure cgroups are enabled
   become: true
   template:
     src: templates/cmdline.j2
     dest: /boot/firmware/cmdline.txt
   register: cgroups_enabled
-
-- name: make sure cgroups are enabled
-  become: true
-  template:
-    src: templates/cmdline.j2
-    dest: /boot/firmware/nobtcmd.txt
-
-- name: make sure cgroups are enabled
-  become: true
-  template:
-    src: templates/cmdline.j2
-    dest: /boot/firmware/btcmd.txt
 
 - name: Reboot systems that need it
   become: true
