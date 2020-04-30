@@ -2,9 +2,87 @@
   hosts: all
   user: "{{ deploy_user }}"
   tasks:
-   - name: Reboot system
+   - name: Stop services
      become: true
-     shell: /sbin/shutdown -r now
-     async: 300
-     poll: 0
-     ignore_errors: true
+     systemd:
+       state: stopped
+       name: "{{ item }}"
+     with_items:
+       - crio
+   - name: Disable services
+     become: true
+     systemd:
+       enabled: no
+       name: "{{ item }}"
+       masked: no
+     with_items:
+       - crio
+- name: Run on etcd hosts
+  hosts: etcd_hosts
+  user: "{{ deploy_user }}"
+  tasks:
+   - name: Stop services
+     become: true
+     systemd:
+       state: stopped
+       name: "{{ item }}"
+     with_items:
+       - etcd
+   - name: Disable services
+     become: true
+     systemd:
+       enabled: no
+       name: "{{ item }}"
+       masked: no
+     with_items:
+       - etcd
+- name: Run on masters
+  hosts: masters
+  user: "{{ deploy_user }}"
+  tasks:
+   - name: Stop services
+     become: true
+     systemd:
+       state: stopped
+       name: "{{ item }}"
+     with_items:
+       - kube-apiserver
+       - kube-scheduler
+       - kube-controller-manager
+   - name: Disable services
+     become: true
+     systemd:
+       enabled: no
+       name: "{{ item }}"
+       masked: no
+     with_items:
+       - kube-apiserver
+       - kube-scheduler
+       - kube-controller-manager
+- name: Run on workers
+  hosts: workers
+  user: "{{ deploy_user }}"
+  tasks:
+   - name: Stop services
+     become: true
+     systemd:
+       state: stopped
+       name: "{{ item }}"
+     with_items:
+       - kubelet
+       - kube-proxy
+   - name: Disable services
+     become: true
+     systemd:
+       enabled: no
+       name: "{{ item }}"
+       masked: no
+     with_items:
+       - kubelet
+       - kube-proxy
+#   - name: Reboot system
+#     become: true
+#     shell: /sbin/shutdown -r now
+#     async: 300
+#     poll: 0
+#     ignore_errors: true
