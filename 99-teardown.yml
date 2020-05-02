@@ -66,6 +66,11 @@
        - kube-apiserver
        - kube-scheduler
        - kube-controller-manager
+   - name: Remove K8s files
+     become: true
+     file:
+       path: /var/lib/kubernetes
+       state: absent
 
 - name: Run on workers
   hosts: workers
@@ -88,6 +93,16 @@
      with_items:
        - kubelet
        - kube-proxy
+   - name: Remove kubelet files
+     become: true
+     file:
+       path: /var/lib/kubelet
+       state: absent
+   - name: Remove kube-proxy files
+     become: true
+     file:
+       path: /var/lib/kube-proxy
+       state: absent
 
 #- name: Reboot all hosts
 #  hosts: all
