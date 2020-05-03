@@ -17,6 +17,11 @@
        masked: no
      with_items:
        - crio
+   - name: Remove crio files
+     become: true
+     file:
+       path: /var/lib/crio
+       state: absent
 
 - name: Run on etcd hosts
   hosts: etcd_hosts
@@ -40,7 +45,7 @@
    - name: Remove etcd database
      become: true
      file:
-       path: /var/lib/etcd/member
+       path: /var/lib/etcd
        state: absent
 
 - name: Run on masters
@@ -93,6 +98,12 @@
      with_items:
        - kubelet
        - kube-proxy
+   - name: Terminate conmon processes
+     become: true
+     shell: 'killall conmon; echo OK'
+   - name: Unmount all tmpfs pod direrctories
+     become: true
+     shell: 'mount | grep "/var/lib/kubelet/" && umount `mount | grep "/var/lib/kubelet/" | sed s/"tmpfs on "// | sed s/" type.*"//`; echo OK'
    - name: Remove kubelet files
      become: true
      file:
@@ -104,12 +115,13 @@
        path: /var/lib/kube-proxy
        state: absent
 
-#- name: Reboot all hosts
-#  hosts: all
-#  user: "{{ deploy_user }}"
-#   - name: Reboot system
-#     become: true
-#     shell: /sbin/shutdown -r now
-#     async: 300
-#     poll: 0
-#     ignore_errors: true
+- name: Reboot all hosts
+  hosts: all
+  user: "{{ deploy_user }}"
+  tasks:
+   - name: Reboot system
+     become: true
+     shell: /sbin/shutdown -r +1
+     async: 300
+     poll: 0
+     ignore_errors: true
