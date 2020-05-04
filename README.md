@@ -14,3 +14,5 @@ Running kubernetes on raspberry pi
 sudo ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/etcd/pikube-ca.crt --cert=/etc/etcd/pikube-etcd.crt --key=/etc/etcd/pikube-etcd.key member list
 
 sudo etcdctl --endpoints=https://192.168.178.80:2379,https://192.168.178.81:2379,https://192.168.178.82:2379 --cacert=/etc/etcd/pikube-ca.crt --cert=/etc/etcd/pikube-etcd.crt --key=/etc/etcd/pikube-etcd.key endpoint health
+
+kubectl run -i -t busybox-01 --image=busybox --restart=Never
