@@ -114,6 +114,19 @@
      file:
        path: /var/lib/kube-proxy
        state: absent
+   - name: Remove cni files
+     become: true
+     file:
+       path: /var/lib/cni
+       state: absent
+# Look if the bridge is still there: brctl show
+# Look if the link is still there: ip link
+# and: ip link delete cni0; ip link delete flannel.1
+   - name: Remove flannel files cni configuration
+     become: true
+     file:
+       path: /etc/cni/net.d/10-flannel.conflist
+       state: absent
 
 - name: Reboot all hosts
   hosts: all

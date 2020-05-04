@@ -1,0 +1,6 @@
+- name: Run locally
+  hosts: localhost
+  user: "{{ deploy_user }}"
+  tasks:
+   - name: Deploy CoreDNS
+     shell: 'kubectl apply -f templates/coredns.yml --kubeconfig configuration/admin.kubeconfig'

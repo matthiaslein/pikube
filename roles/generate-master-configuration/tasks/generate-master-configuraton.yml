@@ -5,20 +5,6 @@
     path: configuration
     state: directory
 
-- name: Create etcd cluster string
-  set_fact:
-    etcd_servers: "https://{{ ansible_host }}:2379"
-
-- name: Assemble etcd cluster string
-  set_fact:
-    etcd_cluster: "{{ groups['masters'] | map('extract', hostvars, ['etcd_servers']) | join(',') }}"
-
-- name: Create kube-apiserver.service configuration files
-  delegate_to: localhost
-  template:
-    src: templates/kube-apiserver_service.j2
-    dest: configuration/kube-apiserver-{{ inventory_hostname }}_service
-
 - name: Create kube-controller-manager.service configuration files
   delegate_to: localhost
   template:
