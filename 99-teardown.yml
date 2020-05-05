@@ -22,6 +22,18 @@
      file:
        path: /var/lib/crio
        state: absent
+   - name: Remove all Kubernetes binaries
+     become: true
+     file:
+       path: {{ item }}
+       state: absent
+     with_fileglob: "/usr/local/bin/kube*"
+   - name: Remove all etcd binaries
+     become: true
+     file:
+       path: {{ item }}
+       state: absent
+     with_fileglob: "/usr/local/bin/etcd*"
 
 - name: Run on etcd hosts
   hosts: etcd_hosts
@@ -101,9 +113,17 @@
    - name: Terminate conmon processes
      become: true
      shell: 'killall conmon; echo OK'
-   - name: Unmount all tmpfs pod direrctories
+#   - name: Unmount all tmpfs pod directories
+#     become: true
+#     shell: 'mount | grep "/var/lib/kubelet/" && umount `mount | grep "/var/lib/kubelet/" | sed s/"tmpfs on "// | sed s/" type.*"//`; echo OK'
+   # Test if this fileglob really works across directories as intended...
+   - name: Unmount all tmpfs pod directories
      become: true
-     shell: 'mount | grep "/var/lib/kubelet/" && umount `mount | grep "/var/lib/kubelet/" | sed s/"tmpfs on "// | sed s/" type.*"//`; echo OK'
+     mount:
+       path: "{{ item }}"
+       state: unmounted
+     with_fileglob:
+       - "/var/lib/kubelet/pods/*/kubernetes.io~secret/default-token-*"
    - name: Remove kubelet files
      become: true
      file:
