@@ -3,5 +3,6 @@
 - include: apt_necessary_pkgs.yml
 - include: set_ssh_key.yml
 - include: set_hostname.yml
-- include: crio_installation.yml
+#- include: crio_installation.yml
+- include: docker_installation.yml
 - include: k8s_binaries_installation.yml

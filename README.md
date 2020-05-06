@@ -17,7 +17,7 @@ sudo etcdctl --endpoints=https://192.168.178.80:2379,https://192.168.178.81:2379
 
 kubectl run -i -t busybox-01 --image=busybox --restart=Never
 
-kubectl apply -f dnsutils.yml
+kubectl apply -f https://k8s.io/examples/admin/dns/dnsutils.yaml
 kubectl exec -ti dnsutils -- nslookup kubernetes.default
 kubectl exec -ti dnsutils -- cat /etc/resolv.conf
 

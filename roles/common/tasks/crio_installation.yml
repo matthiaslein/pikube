@@ -78,6 +78,8 @@
     state: present
     update_cache: yes
 
+# sudo make install-cni install-conmon install-crio install-pinns install-runc
+# curl https://storage.googleapis.com/k8s-conform-cri-o/artifacts/crio-v1.18.0.tar.gz --output crio-v1.18.0.tar.gz
 - name: install crio runc, podman and skopeo
   become: true
   apt:
