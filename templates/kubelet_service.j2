@@ -1,3 +1,6 @@
+#   --container-runtime=remote \
+#   --container-runtime-endpoint=unix:///var/run/crio/crio.sock \
+#   --cni-bin-dir=/usr/lib/cni/ \
 [Unit]
 Description=kubelet: The Kubernetes Node Agent
 Documentation=http://kubernetes.io/docs/
@@ -5,15 +8,12 @@ Documentation=http://kubernetes.io/docs/
 [Service]
 ExecStart=/usr/local/bin/kubelet \
    --cgroup-driver=systemd \
-   --container-runtime=remote \
-   --container-runtime-endpoint=unix:///var/run/crio/crio.sock \
    --config=/var/lib/kubelet/kubelet-config.yaml \
    --image-pull-progress-deadline=2m \
    --kubeconfig=/var/lib/kubelet/kubeconfig \
    --tls-cert-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt \
    --tls-private-key-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.key \
    --network-plugin=cni \
-   --cni-bin-dir=/usr/lib/cni/ \
    --register-node=true \
    --v=2
 Restart=always
