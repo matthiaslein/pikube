@@ -1,3 +1,4 @@
+#   --cgroup-driver=systemd \
 #   --container-runtime=remote \
 #   --container-runtime-endpoint=unix:///var/run/crio/crio.sock \
 #   --cni-bin-dir=/usr/lib/cni/ \
@@ -7,13 +8,16 @@ Documentation=http://kubernetes.io/docs/
 
 [Service]
 ExecStart=/usr/local/bin/kubelet \
-   --cgroup-driver=systemd \
    --config=/var/lib/kubelet/kubelet-config.yaml \
    --image-pull-progress-deadline=2m \
    --kubeconfig=/var/lib/kubelet/kubeconfig \
    --tls-cert-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt \
    --tls-private-key-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.key \
    --network-plugin=cni \
+   --cni-bin-dir=/usr/bin/cni/ \
+   --cgroup-driver=cgroupfs \
+   --container-runtime=remote \
+   --container-runtime-endpoint=unix:///var/run/docker.sock \
    --register-node=true \
    --v=2
 Restart=always

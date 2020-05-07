@@ -80,6 +80,62 @@
     line: 'DefaultBlockIOAccounting=yes'
     backrefs: yes # w/o this, the operation isn't idempotent'
 
+- name: add kubernetes apt-key
+  become: true
+  apt_key:
+    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    state: present
+
+- name: add kubernetes-xenial repo
+  become: true
+  apt_repository:
+    repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
+    state: present
+    filename: kubernetes.list
+    update_cache: yes
+
+- name: install kubernetes-cni
+  become: true
+  apt:
+    name: kubernetes-cni
+    state: present
+    update_cache: yes
+
+- name: Create directory for cni configuration
+  become: true
+  file:
+    path: /etc/cni/net.d
+    state: directory
+
+- name: Create cni configuration files
+  become: true
+  template:
+    src: templates/docker-cni-{{ item }}.j2
+    dest: /etc/cni/net.d/{{ item }}
+  with_items:
+    - 10-bridge.conf
+    - 99-loopback.conf
+
+- name: Create directory for containerd configuration
+  become: true
+  file:
+    path: /etc/containerd
+    state: directory
+
+- name: Create containerd configuration files
+  become: true
+  template:
+    src: templates/docker-cni-containerd-config.toml.j2
+    dest: /etc/containerd/config.toml
+
+- name: Copy conatinerd.service configuration to the node
+  become: true
+  copy:
+    src: templates/docker-cni-containerd_service.j2
+    dest: /etc/systemd/system/containerd.service
+    owner: root
+    group: root
+
 - name: systemd reload
   become: true
   systemd:
@@ -97,3 +153,16 @@
   systemd:
     state: restarted
     name: docker
+
+- name: enable containerd
+  become: true
+  systemd:
+    enabled: yes
+    name: containerd
+    masked: no
+
+- name: start containerd
+  become: true
+  systemd:
+    state: restarted
+    name: containerd
