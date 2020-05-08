@@ -2,26 +2,26 @@
   hosts: all
   user: "{{ deploy_user }}"
   tasks:
-   - name: Stop services
-     become: true
-     systemd:
-       state: stopped
-       name: "{{ item }}"
-     with_items:
-       - crio
-   - name: Disable services
-     become: true
-     systemd:
-       enabled: no
-       name: "{{ item }}"
-       masked: no
-     with_items:
-       - crio
-   - name: Remove crio files
-     become: true
-     file:
-       path: /var/lib/crio
-       state: absent
+  # - name: Stop services
+  #   become: true
+  #   systemd:
+  #     state: stopped
+  #     name: "{{ item }}"
+  #   with_items:
+  #     - crio
+  # - name: Disable services
+  #   become: true
+  #   systemd:
+  #     enabled: no
+  #     name: "{{ item }}"
+  #     masked: no
+  #   with_items:
+  #     - crio
+  # - name: Remove crio files
+  #   become: true
+  #   file:
+  #     path: /var/lib/crio
+  #     state: absent
    - name: Remove all Kubernetes binaries
      become: true
      file:
@@ -113,17 +113,9 @@
    - name: Terminate conmon processes
      become: true
      shell: 'killall conmon; echo OK'
-#   - name: Unmount all tmpfs pod directories
-#     become: true
-#     shell: 'mount | grep "/var/lib/kubelet/" && umount `mount | grep "/var/lib/kubelet/" | sed s/"tmpfs on "// | sed s/" type.*"//`; echo OK'
-   # Test if this fileglob really works across directories as intended...
    - name: Unmount all tmpfs pod directories
      become: true
-     mount:
-       path: "{{ item }}"
-       state: unmounted
-     with_fileglob:
-       - "/var/lib/kubelet/pods/*/kubernetes.io~secret/default-token-*"
+     shell: 'mount | grep "/var/lib/kubelet/" && umount `mount | grep "/var/lib/kubelet/" | sed s/"tmpfs on "// | sed s/" type.*"//`; echo OK'
    - name: Remove kubelet files
      become: true
      file:

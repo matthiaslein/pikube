@@ -1,3 +1,2 @@
 # include other YAML files with tasks here
 - include: generate-api-server-configuraton.yml
-- include: generate-master-configuraton.yml

@@ -8,6 +8,8 @@
     - socat
     - conntrack
     - ipset
+    - dnsmasq
+    - resolvconf
 
 # This is the right place for Ubuntu 20.04. In earlier versions, the correct
 # file used to be /boot/firmware/btcmd.txt or /boot/firmware/nobtcmd.txt
@@ -31,13 +33,12 @@
     delay: 60
     timeout: 300
   when: cgroups_enabled.changed
-- name: Remove annoying motd help message
+
+- name: Remove annoying motd messages
   become: true
   file:
-    path: /etc/update-motd.d/10-help-text
+    path: "{{ item }}"
     state: absent
-- name: Remove annoying motd news message
-  become: true
-  file:
-    path: /etc/update-motd.d/50-motd-news
-    state: absent
+  with_items:
+    - /etc/update-motd.d/10-help-text
+    - /etc/update-motd.d/50-motd-news

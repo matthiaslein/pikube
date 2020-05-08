@@ -21,3 +21,4 @@ kubectl apply -f https://k8s.io/examples/admin/dns/dnsutils.yaml
 kubectl exec -ti dnsutils -- nslookup kubernetes.default
 kubectl exec -ti dnsutils -- cat /etc/resolv.conf
 
+kubectl get svc --all-namespaces

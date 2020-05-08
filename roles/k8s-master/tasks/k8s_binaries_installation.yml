@@ -2,32 +2,19 @@
 # Documentation at
 # https://github.com/kelseyhightower/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
 # https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/08-bootstrapping-kubernetes-controllers.md
-- name: Copy kube-apiserver binary to /usr/local/bin
-  become: true
-  copy:
-    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-apiserver
-    dest: /usr/local/bin
-    owner: root
-    group: root
-    mode: '0755'
 
-- name: Copy kube-controller-manager binary to /usr/local/bin
+- name: Copy k8s binaries to /usr/local/bin
   become: true
   copy:
-    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-controller-manager
+    src: "packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/{{ item }}"
     dest: /usr/local/bin
     owner: root
     group: root
     mode: '0755'
-
-- name: Copy kube-scheduler binary to /usr/local/bin
-  become: true
-  copy:
-    src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kube-scheduler
-    dest: /usr/local/bin
-    owner: root
-    group: root
-    mode: '0755'
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
 
 - name: Create /var/lib/kubernetes/ directory
   become: true
@@ -38,11 +25,13 @@
 - name: Copy CA certificate to k8s configuration
   become: true
   copy:
-    src: certificates/{{ cluster_name }}-ca.crt
-    dest: /var/lib/kubernetes/{{ cluster_name }}-ca.crt
+    src: "certificates/{{ item }}"
+    dest: "/var/lib/kubernetes/{{ item }}"
     owner: root
     group: root
     mode: '0644'
+  with_items:
+    - "{{ cluster_name }}-ca.crt"
 
 - name: Copy CA key to k8s configuration
   become: true
@@ -128,7 +117,7 @@
 - name: Copy encryption config to k8s configuration
   become: true
   copy:
-    src: configuration/encryption-config.yaml
+    src: certificates/encryption-config.yaml
     dest: /var/lib/kubernetes/encryption-config.yaml
     owner: root
     group: root
@@ -152,8 +141,8 @@
 
 - name: Copy kube-controller-manager.service configuration to the node
   become: true
-  copy:
-    src: configuration/kube-controller-manager_service
+  template:
+    src: templates/kube-controller-manager_service.j2
     dest: /etc/systemd/system/kube-controller-manager.service
     owner: root
     group: root

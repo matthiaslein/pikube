@@ -7,3 +7,4 @@
 - include: generate_kube-apiserver_certificate.yml
 - include: generate_etcd-cluster_certificate.yml
 - include: generate_service-account_certificate.yml
+- include: generate_encryption_config.yml

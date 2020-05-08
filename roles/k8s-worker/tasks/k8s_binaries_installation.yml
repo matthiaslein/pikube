@@ -68,8 +68,8 @@
 
 - name: Copy kubelet.service configuration to the node
   become: true
-  copy:
-    src: configuration/kubelet-{{ inventory_hostname }}_service
+  template:
+    src: templates/kubelet_service.j2
     dest: /etc/systemd/system/kubelet.service
     owner: root
     group: root

@@ -1,12 +1,8 @@
-# entry point for creating K8s configuration files
-- name: Create directory for configuration files
-  file:
-    path: configuration
-    state: directory
+# Create encryption key and config
 
-- name: Check if new config is required
+- name: Check if new encryption config is required
   stat:
-    path: configuration/encryption-config.yaml
+    path: certificates/encryption-config.yaml
   register: need_config
 
 - name: Create secret for encryption
@@ -17,5 +13,5 @@
 - name: Create configuration file for enryption
   template:
     src: templates/encryption_config.j2
-    dest: configuration/encryption-config.yaml
+    dest: certificates/encryption-config.yaml
   when: need_config.stat.exists == False

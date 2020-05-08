@@ -6,13 +6,13 @@
     path: certificates
     state: directory
 
-- name: Generate an OpenSSL 2048 bit private RSA key
+- name: Generate an OpenSSL 2048 bit private RSA key for CA
   openssl_privatekey:
     path: "certificates/{{ cluster_name }}-ca.key"
     size: 2048
     type: RSA
 
-- name: Generate an OpenSSL Certificate Signing Request
+- name: Generate an OpenSSL Certificate Signing Request for CA
   openssl_csr:
     path: "certificates/{{ cluster_name }}-ca.csr"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
@@ -31,7 +31,7 @@
       - clientAuth
       - serverAuth
 
-- name: Generate a Self Signed OpenSSL certificate with our private key.
+- name: Generate a Self Signed OpenSSL certificate with our private key for CA
   openssl_certificate:
     path: "certificates/{{ cluster_name }}-ca.crt"
     privatekey_path: "certificates/{{ cluster_name }}-ca.key"
