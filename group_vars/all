@@ -14,7 +14,7 @@ crio_version: 1.16
 
 etcd_version: v3.4.7
 
-pod_cidr: "10.88.0.0/16"
+cluster_pod_cidr: "10.88.0.0/16"
 service_cidr: "10.89.0.0/16"
 cluster_dns: "10.89.0.10"
 

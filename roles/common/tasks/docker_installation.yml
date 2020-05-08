@@ -18,42 +18,6 @@
     groups: docker
     append: yes
 
-- name: add kubernetes apt-key
-  become: true
-  apt_key:
-    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-    state: present
-
-- name: add kubernetes-xenial repo
-  become: true
-  apt_repository:
-    repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
-    state: present
-    filename: kubernetes.list
-    update_cache: yes
-
-- name: install kubernetes-cni
-  become: true
-  apt:
-    name: kubernetes-cni
-    state: present
-    update_cache: yes
-
-- name: Create directory for cni configuration
-  become: true
-  file:
-    path: /etc/cni/net.d
-    state: directory
-
-- name: Create cni configuration files
-  become: true
-  template:
-    src: templates/docker-cni-{{ item }}.j2
-    dest: /etc/cni/net.d/{{ item }}
-  with_items:
-    - 10-bridge.conf
-    - 99-loopback.conf
-
 - name: Create directory for containerd configuration
   become: true
   file:

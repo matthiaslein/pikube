@@ -58,8 +58,8 @@
 
 - name: Copy kubelet-config.yaml configuration to the node
   become: true
-  copy:
-    src: configuration/kubelet-config.yaml
+  template:
+    src: templates/kubelet_config_yaml.j2
     dest: /var/lib/kubelet/kubelet-config.yaml
 
 - name: Copy kube-proxy kubeconfig to the node
@@ -71,8 +71,8 @@
 
 - name: Copy kube-proxy-config.yaml configuration to the node
   become: true
-  copy:
-    src: configuration/kube-proxy-config.yaml
+  template:
+    src: templates/kube_proxy_config_yaml.j2
     dest: /var/lib/kube-proxy/kube-proxy-config.yaml
 
 - name: systemd reload
