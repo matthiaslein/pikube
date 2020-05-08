@@ -1,24 +1,7 @@
-# High level instructions for which tasks apply to which hosts
-- name: apply local configuration to servers listed in hosts
+# Kubeconfigs are stored in the configuration directory
+- name: Generate kubeconfigs
   hosts: localhost
   user: "{{ deploy_user }}"
   roles:
     - generate-configuration
 
-- name: Generate etcd configuration
-  hosts: etcd_hosts
-  user: "{{ deploy_user }}"
-  roles:
-    - generate-etcd-configuration
-
-- name: Generate master configuration
-  hosts: masters
-  user: "{{ deploy_user }}"
-  roles:
-    - generate-master-configuration
-
-- name: Generate worker configuration
-  hosts: workers
-  user: "{{ deploy_user }}"
-  roles:
-    - generate-worker-configuration

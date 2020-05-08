@@ -22,199 +22,87 @@
     path: /var/lib/kubernetes/
     state: directory
 
-- name: Copy CA certificate to k8s configuration
+- name: Copy certificates to k8s configuration
   become: true
   copy:
     src: "certificates/{{ item }}"
     dest: "/var/lib/kubernetes/{{ item }}"
-    owner: root
-    group: root
     mode: '0644'
   with_items:
     - "{{ cluster_name }}-ca.crt"
+    - "{{ cluster_name }}-kube-apiserver.crt"
+    - "{{ cluster_name }}-kube-scheduler.crt"
+    - "{{ cluster_name }}-service-account.crt"
+    - "{{ cluster_name }}-etcd.crt"
 
-- name: Copy CA key to k8s configuration
+- name: Copy keys to k8s configuration
   become: true
   copy:
-    src: certificates/{{ cluster_name }}-ca.key
-    dest: /var/lib/kubernetes/{{ cluster_name }}-ca.key
-    owner: root
-    group: root
+    src: "certificates/{{ item }}"
+    dest: "/var/lib/kubernetes/{{ item }}"
     mode: '0600'
+  with_items:
+    - "{{ cluster_name }}-ca.key"
+    - "{{ cluster_name }}-kube-apiserver.key"
+    - "{{ cluster_name }}-kube-scheduler.key"
+    - "{{ cluster_name }}-service-account.key"
+    - "{{ cluster_name }}-etcd.key"
+    - "encryption-config.yaml"
 
-- name: Copy kube-apiserver certificate to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-kube-apiserver.crt
-    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-apiserver.crt
-    owner: root
-    group: root
-    mode: '0644'
+- name: Assemble components for initial etcd cluster string
+  set_fact:
+    etcd_cluster_member: "{{ inventory_hostname }}=https://{{ ansible_host }}:2380"
 
-- name: Copy kube-apiserver key to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-kube-apiserver.key
-    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-apiserver.key
-    owner: root
-    group: root
-    mode: '0600'
+- name: Assemble etcd initial cluster string
+  set_fact:
+    etcd_initial_cluster: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['etcd_cluster_member']) | join(',') }}"
 
-- name: Copy kube-scheduler certificate to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-kube-scheduler.crt
-    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-scheduler.crt
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Copy kube-scheduler key to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-kube-scheduler.key
-    dest: /var/lib/kubernetes/{{ cluster_name }}-kube-scheduler.key
-    owner: root
-    group: root
-    mode: '0600'
-
-- name: Copy service-account certificate to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-service-account.crt
-    dest: /var/lib/kubernetes/{{ cluster_name }}-service-account.crt
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Copy service-account key to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-service-account.key
-    dest: /var/lib/kubernetes/{{ cluster_name }}-service-account.key
-    owner: root
-    group: root
-    mode: '0600'
-
-- name: Copy etcd-server certificate to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-etcd.crt
-    dest: /var/lib/kubernetes/{{ cluster_name }}-etcd.crt
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Copy etcd-server key to k8s configuration
-  become: true
-  copy:
-    src: certificates/{{ cluster_name }}-etcd.key
-    dest: /var/lib/kubernetes/{{ cluster_name }}-etcd.key
-    owner: root
-    group: root
-    mode: '0600'
-
-- name: Copy encryption config to k8s configuration
-  become: true
-  copy:
-    src: certificates/encryption-config.yaml
-    dest: /var/lib/kubernetes/encryption-config.yaml
-    owner: root
-    group: root
-    mode: '0600'
-
-- name: Copy kube-apiserver.service configuration to the node
-  become: true
-  copy:
-    src: configuration/kube-apiserver-{{ inventory_hostname }}_service
-    dest: /etc/systemd/system/kube-apiserver.service
-    owner: root
-    group: root
-
-- name: Copy kube-controller-manager.kubeconfig configuration to the node
-  become: true
-  copy:
-    src: configuration/kube-controller-manager.kubeconfig
-    dest: /var/lib/kubernetes/kube-controller-manager.kubeconfig
-    owner: root
-    group: root
-
-- name: Copy kube-controller-manager.service configuration to the node
+- name: Copy systemctl service configurations to the node
   become: true
   template:
-    src: templates/kube-controller-manager_service.j2
-    dest: /etc/systemd/system/kube-controller-manager.service
-    owner: root
-    group: root
+    src: "templates/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - kube-apiserver.service
+    - kube-controller-manager.service
+    - kube-scheduler.service
 
-- name: Copy kube-scheduler.kubeconfig configuration to the node
+- name: Copy kubeconfig configurations to the node
   become: true
   copy:
-    src: configuration/kube-scheduler.kubeconfig
-    dest: /var/lib/kubernetes/kube-scheduler.kubeconfig
-    owner: root
-    group: root
-
-- name: Copy kube-scheduler.service configuration to the node
-  become: true
-  copy:
-    src: configuration/kube-scheduler_service
-    dest: /etc/systemd/system/kube-scheduler.service
-    owner: root
-    group: root
-
-- name: Copy admin.kubeconfig configuration to the node
-  become: true
-  copy:
-    src: configuration/admin.kubeconfig
-    dest: /var/lib/kubernetes/admin.kubeconfig
-    owner: root
-    group: root
+    src: "configuration/{{ item }}.kubeconfig"
+    dest: "/var/lib/kubernetes/{{ item }}.kubeconfig"
     mode: '0600'
+  with_items:
+    - kube-controller-manager
+    - kube-scheduler
+    - admin
 
 - name: systemd reload
   become: true
   systemd:
     daemon_reload: yes
 
-- name: enable kube-apiserver
+- name: enable systemctl services
   become: true
   systemd:
     enabled: yes
     masked: no
-    name: kube-apiserver
+    name: "{{ item }}"
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
 
-- name: start kube-apiserver
+- name: start systemctl services
   become: true
   systemd:
     state: restarted
-    name: kube-apiserver
-
-- name: enable kube-controller-manager
-  become: true
-  systemd:
-    enabled: yes
-    masked: no
-    name: kube-controller-manager
-
-- name: start kube-controller-manager
-  become: true
-  systemd:
-    state: restarted
-    name: kube-controller-manager
-
-- name: enable kube-scheduler
-  become: true
-  systemd:
-    enabled: yes
-    masked: no
-    name: kube-scheduler
-
-- name: start kube-scheduler
-  become: true
-  systemd:
-    state: restarted
-    name: kube-scheduler
+    name: "{{ item }}"
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
 
 - name: Create  ~{{ deploy_user }}/.kube directory
   file:

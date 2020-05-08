@@ -1,2 +1,0 @@
-# include other YAML files with tasks here
-- include: generate-worker-configuraton.yml

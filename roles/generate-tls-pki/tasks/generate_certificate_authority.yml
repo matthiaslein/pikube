@@ -1,10 +1,6 @@
 # entry point for creating new SSL Certificate Authority
 # https://github.com/githubixx/ansible-role-kubernetes-ca
 # https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/04-certificate-authority.md
-- name: Create directory for certificates
-  file:
-    path: certificates
-    state: directory
 
 - name: Generate an OpenSSL 2048 bit private RSA key for CA
   openssl_privatekey:

@@ -1,4 +1,10 @@
-# include other YAML files with tasks here
+# Tasks for the creation of the certificate authority (CA)
+# and all certificates that are signed by it
+- name: Create directory for certificates
+  file:
+    path: certificates
+    state: directory
+
 - include: generate_certificate_authority.yml
 - include: generate_admin_certificate.yml
 - include: generate_kube-controller-manager_certificate.yml
@@ -7,4 +13,5 @@
 - include: generate_kube-apiserver_certificate.yml
 - include: generate_etcd-cluster_certificate.yml
 - include: generate_service-account_certificate.yml
+- include: generate_worker_certificate.yml
 - include: generate_encryption_config.yml

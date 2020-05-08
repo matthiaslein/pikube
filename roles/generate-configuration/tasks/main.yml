@@ -1,7 +1,13 @@
 # include other YAML files with tasks here
+- name: Create directory for configuration files
+  file:
+    path: configuration
+    state: directory
+
 - include: generate_kube-proxy_kubeconfig.yml
 - include: generate_kube-controller-manager_kubeconfig.yml
 - include: generate_kube-scheduler_kubeconfig.yml
 - include: generate_admin_kubeconfig.yml
+- include: generate_kubelet_kubeconfigs.yml
 - include: etcd_download.yml
 - include: k8s_download.yml

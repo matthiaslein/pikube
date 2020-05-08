@@ -1,0 +1,34 @@
+# Create certificate for each of the worker kubelets
+
+- name: Generate an OpenSSL 2048 bit private RSA keys for workers
+  openssl_privatekey:
+    path: "certificates/{{ cluster_name }}-worker-{{ item }}.key"
+    size: 2048
+    type: RSA
+  with_items: "{{ groups['workers'] }}"
+
+- name: Generate an OpenSSL Certificate Signing Requests for workers
+  openssl_csr:
+    path: "certificates/{{ cluster_name }}-worker-{{ item }}.csr"
+    privatekey_path: "certificates/{{ cluster_name }}-worker-{{ item }}.key"
+    key_usage:
+      - digitalSignature
+      - nonRepudiation
+      - keyAgreement
+      - dataEncipherment
+      - keyEncipherment
+    extended_key_usage:
+      - clientAuth
+      - serverAuth
+    subject: "CN=system:node:{{ item }},O=system:nodes"
+    subject_alt_name: "DNS:{{ item }},IP:{{ hostvars[item].ansible_host }}"
+  with_items: "{{ groups['workers'] }}"
+
+- name: Sign the worker keys with CA to obtain worker certs
+  openssl_certificate:
+    path: "certificates/{{ cluster_name }}-worker-{{ item }}.crt"
+    csr_path: "certificates/{{ cluster_name }}-worker-{{ item }}.csr"
+    ownca_path: "certificates/{{ cluster_name }}-ca.crt"
+    ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
+    provider: ownca
+  with_items: "{{ groups['workers'] }}"

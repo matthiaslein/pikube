@@ -8,7 +8,5 @@
   copy:
     src: packages/k8s-{{ k8s_version }}-server/kubernetes/server/bin/kubectl
     dest: /usr/local/bin
-    owner: root
-    group: root
     mode: '0755'
 
