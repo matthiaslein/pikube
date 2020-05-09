@@ -137,7 +137,7 @@
    - name: Remove flannel files cni configuration
      become: true
      file:
-       path: /etc/cni/net.d/10-flannel.conflist
+       path: /etc/cni/net.d/
        state: absent
 
 - name: Reboot all hosts
