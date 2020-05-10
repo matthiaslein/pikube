@@ -14,9 +14,9 @@ crio_version: 1.16
 
 etcd_version: v3.4.7
 
-cluster_pod_cidr: "10.88.0.0/16"
-service_cidr: "10.89.0.0/16"
-cluster_dns: "10.89.0.10"
+cluster_pod_cidr: "10.90.0.0/16"
+service_cidr: "10.91.0.0/16"
+cluster_dns: "10.91.0.10"
 
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 masters_ips: "IP:{{ groups['masters'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"

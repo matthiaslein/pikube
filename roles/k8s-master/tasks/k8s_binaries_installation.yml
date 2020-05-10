@@ -51,7 +51,7 @@
 
 - name: Assemble components for initial etcd cluster string
   set_fact:
-    etcd_cluster_member: "{{ inventory_hostname }}=https://{{ ansible_host }}:2380"
+    etcd_cluster_member: "https://{{ ansible_host }}:2379"
 
 - name: Assemble etcd initial cluster string
   set_fact:
