@@ -22,3 +22,5 @@ kubectl exec -ti dnsutils -- nslookup kubernetes.default
 kubectl exec -ti dnsutils -- cat /etc/resolv.conf
 
 kubectl get svc --all-namespaces
+
+get nodes -o jsonpath='{range .items[*]} {.metadata.name}{"  "}{.spec.podCIDR}{"\n"}{end}'

@@ -10,6 +10,7 @@
     - ipset
     - dnsmasq
     - resolvconf
+    - net-tools
 
 # This is the right place for Ubuntu 20.04. In earlier versions, the correct
 # file used to be /boot/firmware/btcmd.txt or /boot/firmware/nobtcmd.txt
@@ -42,3 +43,11 @@
   with_items:
     - /etc/update-motd.d/10-help-text
     - /etc/update-motd.d/50-motd-news
+
+- name: make sure all nodes are available in /etc/hosts
+  become: true
+  lineinfile: 
+    path: /etc/hosts
+    line: '{{ hostvars[item].ansible_host }} {{ item }}'
+  with_items: "{{ groups['all'] }}"
+
