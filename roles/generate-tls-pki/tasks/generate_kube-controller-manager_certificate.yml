@@ -1,24 +1,18 @@
-# entry point for creating new SSL Cartificate Authority
-# https://github.com/githubixx/ansible-role-kubernetes-ca
-# https://github.com/mmumshad/kubernetes-the-hard-way/blob/master/docs/04-certificate-authority.md
-- name: Create directory for certificates
-  file:
-    path: certificates
-    state: directory
+# Create certificate for the kube-controller-manager
 
-- name: Generate an OpenSSL 2048 bit private RSA key
+- name: Generate an OpenSSL 2048 bit private RSA key for controller-manager
   openssl_privatekey:
     path: "certificates/{{ cluster_name }}-kube-controller-manager.key"
     size: 2048
     type: RSA
 
-- name: Generate an OpenSSL Certificate Signing Request
+- name: Generate an OpenSSL Certificate Signing Request for controller-manager
   openssl_csr:
     path: "certificates/{{ cluster_name }}-kube-controller-manager.csr"
     privatekey_path: "certificates/{{ cluster_name }}-kube-controller-manager.key"
     subject: "CN=system:kube-controller-manager"
 
-- name: Sign the kube-controller-manager key with CA to obtain kube-controller-manager certificate
+- name: Sign the key with CA to obtain kube-controller-manager certificate
   openssl_certificate:
     path: "certificates/{{ cluster_name }}-kube-controller-manager.crt"
     csr_path: "certificates/{{ cluster_name }}-kube-controller-manager.csr"

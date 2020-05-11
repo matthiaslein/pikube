@@ -1,3 +1,4 @@
+#  --allocate-node-cidrs=true \
 [Unit]
 Description=Kubernetes Controller Manager
 Documentation=https://github.com/kubernetes/kubernetes
@@ -7,8 +8,7 @@ ExecStart=/usr/local/bin/kube-controller-manager \
   --authentication-kubeconfig=/var/lib/kubernetes/kube-controller-manager.kubeconfig \
   --authorization-kubeconfig=/var/lib/kubernetes/kube-controller-manager.kubeconfig \
   --bind-address=127.0.0.1 \
-  --allocate-node-cidrs=true \
-  --cluster-cidr={{ pod_cidr }} \
+  --cluster-cidr={{ cluster_pod_cidr }} \
   --client-ca-file=/var/lib/kubernetes/{{ cluster_name }}-ca.crt \
   --cluster-signing-cert-file=/var/lib/kubernetes/{{ cluster_name }}-ca.crt \
   --cluster-signing-key-file=/var/lib/kubernetes/{{ cluster_name }}-ca.key \

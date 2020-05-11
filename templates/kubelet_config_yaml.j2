@@ -10,5 +10,6 @@ authentication:
 authorization:
   mode: Webhook
 clusterDomain: "cluster.local"
+podCIDR: "{{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(inventory_hostname)) }}"
 resolvConf: "/run/systemd/resolve/resolv.conf"
 runtimeRequestTimeout: "15m"

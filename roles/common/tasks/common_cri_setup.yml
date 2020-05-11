@@ -1,0 +1,81 @@
+# Common setup needed for all container runtime interfaces (CRIs))
+
+- name: Enable kernel modules
+  become: true
+  lineinfile: 
+    path: /etc/modules-load.d/modules.conf
+    line: "{{ item }}"
+    state: present
+  with_items:
+    - overlay
+    - br_netfilter
+
+- name: Load kernel modules
+  become: true
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - overlay
+    - br_netfilter
+
+- name: Enable networking in 99-kubernetes-cri.conf
+  become: true
+  sysctl:
+    name: "{{ item }}"
+    value: '1'
+    state: present
+    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+    reload: yes
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-ip6tables
+
+- name: Enable accounting
+  become: true
+  lineinfile: 
+    path: /etc/systemd/system.conf
+    regexp: '#{{ item }}=no' 
+    line: '{{ item }}=yes'
+    backrefs: yes # w/o this, the operation isn't idempotent'
+  with_items:
+    - DefaultCPUAccounting
+    - DefaultBlockIOAccounting
+
+- name: add kubernetes apt-key
+  become: true
+  apt_key:
+    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+    state: present
+
+- name: add kubernetes-xenial repo
+  become: true
+  apt_repository:
+    repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
+    state: present
+    filename: kubernetes.list
+    update_cache: yes
+
+- name: install kubernetes-cni
+  become: true
+  apt:
+    name: kubernetes-cni
+    state: present
+    update_cache: yes
+
+- name: Create directory for cni configuration
+  become: true
+  file:
+    path: /etc/cni/net.d
+    state: directory
+
+- name: Create cni configuration files
+  become: true
+  template:
+    src: templates/cni-{{ item }}.j2
+    dest: /etc/cni/net.d/{{ item }}
+  with_items:
+    - 10-bridge.conf
+    - 99-loopback.conf
+

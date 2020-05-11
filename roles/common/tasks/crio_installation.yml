@@ -4,59 +4,6 @@
 # https://github.com/cri-o/cri-o
 # https://medium.com/@raghwendrasingh1819/diy-kubernetes-cluster-with-cri-o-container-runtime-ubuntu-xenial-53e967c33dd9
 
-- name: Enable the overlay module
-  become: true
-  lineinfile: 
-    path: /etc/modules-load.d/modules.conf
-    line: 'overlay'
-    state: present
-
-- name: Load the overlay module
-  become: true
-  modprobe:
-    name: overlay
-    state: present
-
-- name: Enable the br_netfilter module
-  become: true
-  lineinfile: 
-    path: /etc/modules-load.d/modules.conf
-    line: 'br_netfilter'
-    state: present
-
-- name: Load the br_netfilter module
-  become: true
-  modprobe:
-    name: br_netfilter
-    state: present
-
-- name: 99-kubernetes-cri.conf 1
-  become: true
-  sysctl:
-    name: net.bridge.bridge-nf-call-iptables
-    value: '1'
-    state: present
-    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
-    reload: yes
-
-- name: 99-kubernetes-cri.conf 2
-  become: true
-  sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'
-    state: present
-    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
-    reload: yes
-
-- name: 99-kubernetes-cri.conf 3
-  become: true
-  sysctl:
-    name: net.bridge.bridge-nf-call-ip6tables
-    value: '1'
-    state: present
-    sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
-    reload: yes
-
 - name: add crio apt-key for {{ os_used }} {{ os_version }}
   become: true
   apt_key:
@@ -125,22 +72,6 @@
     path: /etc/crio/crio.conf
     regexp: '"/opt/cni/bin/",' 
     line: '"/opt/cni/bin/", "/usr/lib/cni/"'
-    backrefs: yes # w/o this, the operation isn't idempotent'
-
-- name: Enable CPU accounting
-  become: true
-  lineinfile: 
-    path: /etc/systemd/system.conf
-    regexp: '#DefaultCPUAccounting=no' 
-    line: 'DefaultCPUAccounting=yes'
-    backrefs: yes # w/o this, the operation isn't idempotent'
-
-- name: Enable BlockIO accounting
-  become: true
-  lineinfile: 
-    path: /etc/systemd/system.conf
-    regexp: '#DefaultBlockIOAccounting=no' 
-    line: 'DefaultBlockIOAccounting=yes'
     backrefs: yes # w/o this, the operation isn't idempotent'
 
 - name: systemd reload

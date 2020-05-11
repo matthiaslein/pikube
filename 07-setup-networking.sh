@@ -1,1 +1,1 @@
-ansible-playbook -i ./hosts ./06-setup-workers.yml
+ansible-playbook -i ./hosts ./07-setup-networking.yml
