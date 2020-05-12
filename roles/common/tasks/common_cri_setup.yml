@@ -81,5 +81,9 @@
 
 - name: Creating routing tables for cni
   become: true
-  shell: "ip route add {{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(item)) }} via {{ hostvars[item].ansible_host }} dev wlan0"
+  shell: "ip route add {{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(item)) }} via {{ hostvars[item].ansible_host }} dev wlan0; echo OK"
   with_items: "{{ groups['all'] }}"
+
+- name: Adjusting routing tables for cni
+  become: true
+  shell: "ip route delete {{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(inventory_hostname)) }}; echo OK"

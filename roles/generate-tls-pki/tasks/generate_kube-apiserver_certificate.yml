@@ -26,7 +26,7 @@
       - clientAuth
       - serverAuth
     subject: "CN=kube-apiserver,O=system:masters"
-    subject_alt_name: "DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }},IP:127.0.0.1"
+    subject_alt_name: "DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local,{{ masters_ips }},{{ masters_names }},IP:127.0.0.1,IP:{{ service_cidr | ipaddr('next_usable') }}"
 
 - name: Sign the kube-apiserver key with CA to obtain kube-apiserver cert
   openssl_certificate:

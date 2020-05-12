@@ -7,4 +7,4 @@
   #   groups['workers'].index(item)
     - name: Creating routing tables for cni
       debug:
-        msg: "{{ service_cidr | next_nth_usable(10) }}"
+        msg: "{{ service_cidr | ipaddr('next_usable') }}"
