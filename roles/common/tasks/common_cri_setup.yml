@@ -79,3 +79,7 @@
     - 10-bridge.conf
     - 99-loopback.conf
 
+- name: Creating routing tables for cni
+  become: true
+  shell: "ip route add {{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(item)) }} via {{ hostvars[item].ansible_host }} dev wlan0"
+  with_items: "{{ groups['all'] }}"

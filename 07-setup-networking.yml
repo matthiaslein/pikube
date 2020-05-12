@@ -1,12 +1,10 @@
-- name: Run locally
+- name: Network setup
   hosts: localhost
   user: "{{ deploy_user }}"
   tasks:
   # - name: Deploy CoreDNS
   #   shell: 'kubectl apply -f templates/coredns.yml --kubeconfig configuration/admin.kubeconfig'
   #   groups['workers'].index(item)
-   - name: Print pod cidrs per node
-     debug:
-       msg: "{{ cluster_pod_cidr | ipsubnet(24, groups['all'].index(item)) }}" 
-     with_items: "{{ groups['workers'] }}"
-
+    - name: Creating routing tables for cni
+      debug:
+        msg: "{{ service_cidr | next_nth_usable(10) }}"
