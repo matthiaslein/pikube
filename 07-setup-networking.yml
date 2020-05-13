@@ -1,15 +1,14 @@
 - name: Network setup
-  hosts: all
+  hosts: localhost
   user: "{{ deploy_user }}"
   tasks:
-  #  - name: Deploy CoreDNS
+  #  - name: Deploy Flannel Container Networking
   #    shell: 'kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
 
   #  - name: Deploy CoreDNS
   #    shell: 'kubectl apply -f templates/coredns.yml --kubeconfig configuration/admin.kubeconfig'
-    - name: Adjust local resolv.conf file
-      become: true
-      lineinfile:
-        path: /run/systemd/resolve/resolv.conf
-        state: absent
-        regexp: 'nameserver 127.0.0.1'
+
+
+  # - name: test
+  #   debug:
+  #     msg: "{{ hostvars[groups['proxies'][0]].ansible_host }}"

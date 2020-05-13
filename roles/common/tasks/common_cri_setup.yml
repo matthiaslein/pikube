@@ -77,20 +77,3 @@
     state: absent
     regexp: 'nameserver 127.0.0.1' 
 
-#- name: Create cni configuration files
-#  become: true
-#  template:
-#    src: templates/cni-{{ item }}.j2
-#    dest: /etc/cni/net.d/{{ item }}
-#  with_items:
-#    - 10-bridge.conf
-#    - 99-loopback.conf
-#
-#- name: Creating routing tables for cni
-#  become: true
-#  shell: "ip route add {{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(item)) }} via {{ hostvars[item].ansible_host }} dev wlan0; echo OK"
-#  with_items: "{{ groups['all'] }}"
-#
-#- name: Adjusting routing tables for cni
-#  become: true
-#  shell: "ip route delete {{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(inventory_hostname)) }}; echo OK"
