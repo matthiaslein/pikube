@@ -1,6 +1,5 @@
 # include other YAML files with tasks here
-- include: apt_update_upgrade.yml
-- include: apt_necessary_pkgs.yml
+- include: apt.yml
 - include: set_ssh_key.yml
 - include: set_hostname.yml
 - include: common_cri_setup.yml

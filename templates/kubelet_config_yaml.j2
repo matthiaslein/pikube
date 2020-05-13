@@ -12,6 +12,8 @@ authorization:
 clusterDomain: "cluster.local"
 clusterDNS:
   - "{{ service_cidr | next_nth_usable(10)}}"
-podCIDR: "{{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(inventory_hostname)) }}"
+#Using "--allocate-node-cidrs=true" in the kube-controller-manager now
+#So the following line shouldn't be necessary anymore'
+#podCIDR: "{{  cluster_pod_cidr | ipsubnet(24, groups['all'].index(inventory_hostname)) }}"
 resolvConf: "/run/systemd/resolve/resolv.conf"
 runtimeRequestTimeout: "15m"
