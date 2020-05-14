@@ -55,7 +55,7 @@
   lineinfile: 
     path: /etc/crio/crio.conf
     regexp: 'apparmor_profile = "crio-default"' 
-    line: 'apparmor_profile = "crio-default-{{ crio_version }}.2"'
+    line: 'apparmor_profile = "crio-default-1.17.4"'
     backrefs: yes # w/o this, the operation isn't idempotent'
 
 - name: Set crio's cgroup manager to systemd

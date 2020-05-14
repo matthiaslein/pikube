@@ -70,10 +70,3 @@
     path: /etc/cni/net.d
     state: directory
 
-- name: Adjust local resolv.conf file
-  become: true
-  lineinfile: 
-    path: /run/systemd/resolve/resolv.conf
-    state: absent
-    regexp: 'nameserver 127.0.0.1' 
-

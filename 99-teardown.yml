@@ -2,26 +2,48 @@
   hosts: all
   user: "{{ deploy_user }}"
   tasks:
-  # - name: Stop services
-  #   become: true
-  #   systemd:
-  #     state: stopped
-  #     name: "{{ item }}"
-  #   with_items:
-  #     - crio
-  # - name: Disable services
-  #   become: true
-  #   systemd:
-  #     enabled: no
-  #     name: "{{ item }}"
-  #     masked: no
-  #   with_items:
-  #     - crio
-  # - name: Remove crio files
-  #   become: true
-  #   file:
-  #     path: /var/lib/crio
-  #     state: absent
+   - name: Stop services
+     become: true
+     ignore_errors: true
+     systemd:
+       state: stopped
+       name: "{{ item }}"
+     with_items:
+       - crio
+       - docker
+   - name: Disable services
+     become: true
+     ignore_errors: true
+     systemd:
+       enabled: no
+       name: "{{ item }}"
+       masked: no
+     with_items:
+       - crio
+       - docker
+   - name: Remove container runtime
+     become: true
+     apt:
+       name:
+         - docker.io
+         - cri-o-{{ crio_version }}
+         - cri-o-runc
+         - cri-tools
+         - podman
+         - podman-plugins
+         - skopeo
+         - catatonit
+         - fuse-overlayfs
+         - conmon
+         - containers-common
+         - containers-golang
+         - containers-image
+         - containernetworking-plugins
+         - libslirp0
+         - slirp4netns
+         - uidmap
+         - varlink
+       state: absent
    - name: Remove all Kubernetes binaries
      become: true
      file:
@@ -110,12 +132,6 @@
      with_items:
        - kubelet
        - kube-proxy
-   - name: Terminate conmon processes
-     become: true
-     shell: 'killall conmon; echo OK'
-   - name: Unmount all tmpfs pod directories
-     become: true
-     shell: 'mount | grep "/var/lib/kubelet/" && umount `mount | grep "/var/lib/kubelet/" | sed s/"tmpfs on "// | sed s/" type.*"//`; echo OK'
    - name: Remove kubelet files
      become: true
      file:
@@ -125,19 +141,6 @@
      become: true
      file:
        path: /var/lib/kube-proxy
-       state: absent
-   - name: Remove cni files
-     become: true
-     file:
-       path: /var/lib/cni
-       state: absent
-# Look if the bridge is still there: brctl show
-# Look if the link is still there: ip link
-# and: ip link delete cni0; ip link delete flannel.1
-   - name: Remove flannel files cni configuration
-     become: true
-     file:
-       path: /etc/cni/net.d/
        state: absent
 
 - name: Reboot all hosts

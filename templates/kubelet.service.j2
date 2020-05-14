@@ -1,7 +1,3 @@
-#   --cgroup-driver=systemd \
-#   --container-runtime=remote \
-#   --container-runtime-endpoint=unix:///var/run/crio/crio.sock \
-#   --cni-bin-dir=/usr/lib/cni/ \
 [Unit]
 Description=kubelet: The Kubernetes Node Agent
 Documentation=http://kubernetes.io/docs/
@@ -14,7 +10,9 @@ ExecStart=/usr/local/bin/kubelet \
    --tls-cert-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.crt \
    --tls-private-key-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.key \
    --network-plugin=cni \
-   --cgroup-driver=cgroupfs \
+   --cgroup-driver=systemd \
+   --container-runtime=remote \
+   --container-runtime-endpoint=unix:///var/run/crio/crio.sock \
    --register-node=true \
    --v=2
 Restart=always

@@ -21,9 +21,6 @@ service_cidr: "10.91.0.0/16"
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 masters_ips: "IP:{{ groups['masters'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
 masters_names: "DNS:{{ groups['masters'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"
-proxies_ips: "{{ groups['proxies'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
-workers_ips: "{{ groups['workers'] | map('extract', hostvars, ['ansible_host']) | join(',') }}"
 
-etcd_startup_node: "{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | random }}"
 etcd_ips: "IP:{{ groups['etcd_hosts'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
 etcd_names: "DNS:{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"
