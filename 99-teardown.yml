@@ -24,6 +24,8 @@
    - name: Remove container runtime
      become: true
      apt:
+       state: absent
+       purge: yes
        name:
          - docker.io
          - cri-o-{{ crio_version }}
@@ -43,7 +45,6 @@
          - slirp4netns
          - uidmap
          - varlink
-       state: absent
    - name: Remove all Kubernetes binaries
      become: true
      file:

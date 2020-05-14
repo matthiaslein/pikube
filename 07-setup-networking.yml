@@ -1,7 +1,16 @@
 - name: Network setup
-  hosts: localhost
+  hosts: workers
   user: "{{ deploy_user }}"
   tasks:
+    - name: Copy CNI
+      become: true
+      copy:
+        src: "/etc/cni/net.d/{{ item }}"
+        dest: /etc/cni/net.d/
+      with_items:
+        - 100-crio-bridge.conf
+        - 200-loopback.conf
+        - 87-podman-bridge.conflist
   #  - name: Deploy Flannel Container Networking
   #    shell: 'kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml'
 
