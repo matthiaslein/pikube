@@ -28,6 +28,7 @@
        purge: yes
        name:
          - docker.io
+         - containerd
          - cri-o-{{ crio_version }}
          - cri-o-runc
          - cri-tools

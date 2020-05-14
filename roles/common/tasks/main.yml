@@ -4,7 +4,7 @@
 - include: set_hostname.yml
 - include: common_cri_setup.yml
 - include: crio_installation.yml
-  when: cri_used == crio
+  when: cri_used == "crio"
 - include: docker_installation.yml
-  when: cri_used == docker
+  when: cri_used == "docker"
 - include: k8s_binaries_installation.yml
