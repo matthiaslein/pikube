@@ -1,6 +1,8 @@
 [Unit]
 Description=kubelet: The Kubernetes Node Agent
 Documentation=http://kubernetes.io/docs/
+After=crio.service
+Requires=crio.service
 
 [Service]
 ExecStart=/usr/local/bin/kubelet \
@@ -21,4 +23,3 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-Wants=crio.service

@@ -1,6 +1,8 @@
 [Unit]
 Description=kubelet: The Kubernetes Node Agent
 Documentation=http://kubernetes.io/docs/
+After=containerd.service
+Requires=containerd.service
 
 [Service]
 ExecStart=/usr/local/bin/kubelet \
@@ -11,7 +13,6 @@ ExecStart=/usr/local/bin/kubelet \
    --tls-private-key-file=/var/lib/kubelet/{{ cluster_name }}-worker-{{ inventory_hostname }}.key \
    --network-plugin=cni \
    --cgroup-driver=cgroupfs \
-   --container-runtime-endpoint=unix:///var/run/docker.sock \
    --register-node=true \
    --v=2
 Restart=always
@@ -20,4 +21,3 @@ RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-Wants=crio.service

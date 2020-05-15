@@ -40,14 +40,21 @@
     - "{{ cluster_name }}-worker-{{ inventory_hostname }}.crt"
     - "{{ cluster_name }}-ca.crt"
 
-- name: Copy sytemctl service configurations to the node
+- name: Copy kube-proxy sytemctl service configurations to the node
   become: true
   template:
     src: "templates/{{ item }}.j2"
     dest: "/etc/systemd/system/{{ item }}"
   with_items:
-    - "kubelet.service-{{ cri_used }}"
     - kube-proxy.service
+
+- name: Copy kubelet sytemctl service configurations to the node
+  become: true
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "/etc/systemd/system/kubelet.service"
+  with_items:
+    - "kubelet.service-{{ cri_used }}"
 
 - name: Copy kubelet kubeconfig to the node
   become: true
