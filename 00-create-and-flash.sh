@@ -3,7 +3,9 @@
 export CLUSTER_NAME="pikube"
 export CLUSTER_TIMEZONE="Europe/Berlin"
 export DEPLOYER="pikube-deployer"
-export AUTHORIZED_KEY="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJoD6Z60/Ceuc6X4Tex3I09na/B0TnUFCsth4V2uZjg/ matthias.lein@gmail.com"
+
+# We're going to use the first public key we find in .ssh
+export AUTHORIZED_KEY=`ls ~/.ssh/*.pub | head -n 1 | xargs cat`
 
 while read -r HOST
 do
