@@ -42,6 +42,7 @@
          - containers-golang
          - containers-image
          - containernetworking-plugins
+         - kubernetes-cni
          - libslirp0
          - slirp4netns
          - uidmap

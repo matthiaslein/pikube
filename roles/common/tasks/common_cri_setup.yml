@@ -57,12 +57,13 @@
     filename: kubernetes.list
     update_cache: yes
 
-- name: install kubernetes-cni
-  become: true
-  apt:
-    name: kubernetes-cni
-    state: present
-    update_cache: yes
+# Clashes with podman...
+#- name: install kubernetes-cni
+#  become: true
+#  apt:
+#    name: kubernetes-cni
+#    state: present
+#    update_cache: yes
 
 - name: Create directory for cni configuration
   become: true
