@@ -1,0 +1,28 @@
+# Downloading cri-o binaries
+
+- name: Check if cri-o {{ crio_version }} static release bundle download is required
+  stat:
+    path: "packages/crio-{{ crio_version }}.tar.gz"
+  register: crio_downloaded
+
+- name: Download cri-o {{ crio_version }} static release bundle
+  get_url:
+    url: "https://storage.googleapis.com/k8s-conform-cri-o/artifacts/crio-{{ crio_version }}.tar.gz"
+    dest: "packages/crio-{{ crio_version }}.tar.gz"
+  when: crio_downloaded.stat.exists == False
+
+- name: Check if cri-o {{ crio_version }} static release bundle archive unpack is required
+  stat:
+    path: "packages/crio-{{ crio_version }}"
+  register: crio_unpacked
+
+- name: Create directory for k8s server {{ k8s_version }} package unpack
+  file:
+    path: "packages/crio-{{ crio_version }}"
+    state: directory
+  when: crio_downloaded.stat.exists == False
+
+# unarchive module would be better, it's' currently buggy and can't handle tgz'
+- name: Extract cri-o {{ crio_version }} static release bundle package
+  shell: "cd packages ; tar xzf crio-{{ crio_version }}.tar.gz"
+  when: crio_unpacked.stat.exists == False

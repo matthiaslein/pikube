@@ -11,3 +11,5 @@
 - include: generate_kubelet_kubeconfigs.yml
 - include: etcd_download.yml
 - include: k8s_download.yml
+- include: crio_download.yml
+  when: cri_used == "crio"

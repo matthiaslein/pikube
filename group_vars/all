@@ -7,10 +7,12 @@ os_version: "20.04"
 cri_used: "crio"
 #cri_used: "docker"
 
-k8s_version: "v1.18.2"
+k8s_version: "v1.19.0"
+#k8s_version: "v1.18.2"
 
+crio_version: "v1.19.0"
 #crio_version: 1.18
-crio_version: 1.17
+#crio_version: 1.17
 #crio_version: 1.16
 
 etcd_version: v3.4.7

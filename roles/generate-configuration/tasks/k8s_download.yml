@@ -2,7 +2,7 @@
 
 - name: Check if k8s {{ k8s_version }} server binary download is required
   stat:
-    path: packages/kubernetes-server-v{{ k8s_version }}-linux-arm64.tar.gz
+    path: packages/kubernetes-server-{{ k8s_version }}-linux-arm64.tar.gz
   register: k8s_server_downloaded
 
 - name: Download k8s {{ k8s_version }} server package
