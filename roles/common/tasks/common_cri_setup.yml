@@ -43,21 +43,21 @@
     - DefaultCPUAccounting
     - DefaultBlockIOAccounting
 
-- name: add kubernetes apt-key
-  become: true
-  apt_key:
-    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
-    state: present
-
-- name: add kubernetes-xenial repo
-  become: true
-  apt_repository:
-    repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
-    state: present
-    filename: kubernetes.list
-    update_cache: yes
-
 # Clashes with podman...
+#- name: add kubernetes apt-key
+#  become: true
+#  apt_key:
+#    url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+#    state: present
+#
+#- name: add kubernetes-xenial repo
+#  become: true
+#  apt_repository:
+#    repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main'
+#    state: present
+#    filename: kubernetes.list
+#    update_cache: yes
+#
 #- name: install kubernetes-cni
 #  become: true
 #  apt:

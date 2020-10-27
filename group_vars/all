@@ -4,8 +4,8 @@ deploy_user: "{{ cluster_name }}-deployer"
 os_used: Ubuntu
 os_version: "20.04"
 
-cri_used: "crio"
-#cri_used: "docker"
+#cri_used: "crio"
+cri_used: "docker"
 
 k8s_version: "v1.19.0"
 #k8s_version: "v1.18.2"
