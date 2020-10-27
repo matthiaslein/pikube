@@ -38,6 +38,15 @@
     owner: root
     group: root
 
+# Check periodically if Docker is still defaulting to cgroupfs
+- name: Switch docker cgroups to systemd
+  become: true
+  lineinfile: 
+    path: /lib/systemd/system/docker.service
+    regexp: 'ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock' 
+    line: 'ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock --exec-opt native.cgroupdriver=systemd'
+    backrefs: yes # w/o this, the operation isn't idempotent'
+
 - name: systemd reload
   become: true
   systemd:
