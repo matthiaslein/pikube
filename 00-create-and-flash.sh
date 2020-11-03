@@ -70,6 +70,7 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 print_help ()
 {
+# Prints help: need to reconcile with what's defined in the cli options above
 echo ""
 echo "usage $0 [--verbose] [-h|--help]"
 echo "      [-n|--nodes nodes] [-k|--generate-ssh-key] [-f|--flash-sd-drive]"
@@ -77,63 +78,26 @@ echo "      [--cluster-name name] [--cluster-timezone zone] [--deployer-username
 exit 0
 }
 
-#
-# Start of the script itself
-#
-
-if [ "${HELP}" = "YES" ]
+add_key_to_known_hosts ()
+{
+# Will add the public key of ${HOST} to the user's .ssh/known_hosts file
+if ssh-keygen -F ${HOST} &> /dev/null
 then
-  print_help
+  echo " ${HOST}'s key is present in the known hosts file"
+else
+  echo " ${HOST}'s key is NOT present in the known hosts file"
+  echo " adding ${HOST},${IP_ADDRESS}"
+  IP_ADDRESS=`getent hosts ${HOST} | awk '{ print $1 }'`
+  PUB_KEY=`cat certificates/id_ecdsa-${HOST}.pub | sed s/"== .*"/"=="/`
+  echo "${HOST},${IP_ADDRESS} ${PUB_KEY}" >> ~/.ssh/known_hosts
+  ssh-keygen -Hf ~/.ssh/known_hosts &> /dev/null
+  rm -rf ~/.ssh/known_hosts.old
 fi
+}
 
-
-# We're going to use the first public key we find in .ssh
-export AUTHORIZED_KEY=`ls ~/.ssh/*.pub | head -n 1 | xargs cat`
-
-while read -r HOST
-do
-  echo "Generating ssh keys for ${HOST}"
-
-  if [ -a "certificates/id_dsa-${HOST}" ]
-  then
-    rm -rf certificates/id_dsa-${HOST} && echo " Deleting old DSA key"
-  fi
-  if [ -a "certificates/id_dsa-${HOST}.pub" ]
-  then
-    rm -rf certificates/id_dsa-${HOST}.pub && echo " Deleting old DSA public key"
-  fi
-  ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-${HOST} || exit -1
-
-  if [ -a "certificates/id_ecdsa-${HOST}" ]
-  then
-    rm -rf certificates/id_ecdsa-${HOST} && echo " Deleting old ECDSA key"
-  fi
-  if [ -a "certificates/id_ecdsa-${HOST}.pub" ]
-  then
-    rm -rf certificates/id_ecdsa-${HOST}.pub && echo " Deleting old ECDSA public key"
-  fi
-  ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-${HOST} || exit -1
-
-  if [ -a "certificates/id_rsa-${HOST}" ]
-  then
-    rm -rf certificates/id_rsa-${HOST} && echo " Deleting old RSA key"
-  fi
-  if [ -a "certificates/id_rsa-${HOST}.pub" ]
-  then
-    rm -rf certificates/id_rsa-${HOST}.pub && echo " Deleting old RSA public key"
-  fi
-  ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-${HOST} || exit -1
-
-  if [ -a "certificates/id_ed25519-${HOST}" ]
-  then
-    rm -rf certificates/id_ed25519-${HOST} && echo " Deleting old ED25519 key"
-  fi
-  if [ -a "certificates/id_ed25519-${HOST}.pub" ]
-  then
-    rm -rf certificates/id_ed25519-${HOST}.pub && echo " Deleting old ED25519 public key"
-  fi
-  ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-${HOST} || exit -1
-
+generate_user_data_file ()
+# Creates a cloud-init user_data file for ${HOST}
+{
   echo "Generating cloudconfig user.data file for ${HOST}"
 
   if [ -a "configuration/user-data-${HOST}" ]
@@ -151,20 +115,11 @@ do
   ED25519_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-${HOST}` # pragma: allowlist secret
   ED25519_PUBLIC_KEY=`cat certificates/id_ed25519-${HOST}.pub`
 
-  cat > configuration/user-data-${HOST} << EOF
-#cloud-config
+# We're going to use the first public key we find in .ssh
+export AUTHORIZED_KEY=`ls ~/.ssh/*.pub | head -n 1 | xargs cat`
 
-# Configure sudo user for deployment
-users:
-  - default
-  - name: ${DEPLOYER}
-    gecos: "${CLUSTER_NAME} deployer account"
-    sudo: ALL=(ALL) NOPASSWD:ALL # pragma: allowlist secret
-    shell: /bin/bash
-    groups: users,adm,dialout,audio,plugdev,netdev,video
-    lock_passwd: true
-    ssh-authorized-keys:
-      - {AUTHORIZED_KEY}
+cat > configuration/user-data-${HOST} << EOF
+#cloud-config
 
 # Set hostname
 hostname: ${HOST}
@@ -209,6 +164,69 @@ power_state:
  timeout: 60
  condition: True
 EOF
+}
+
+generate_ssh_server_keys ()
+{
+# Creates keys for ${HOST}
+echo "Generating ssh keys for ${HOST}"
+
+if [ -a "certificates/id_dsa-${HOST}" ]
+then
+  rm -rf certificates/id_dsa-${HOST} && echo " Deleting old DSA key"
+fi
+if [ -a "certificates/id_dsa-${HOST}.pub" ]
+then
+  rm -rf certificates/id_dsa-${HOST}.pub && echo " Deleting old DSA public key"
+fi
+ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-${HOST} || exit -1
+
+if [ -a "certificates/id_ecdsa-${HOST}" ]
+then
+  rm -rf certificates/id_ecdsa-${HOST} && echo " Deleting old ECDSA key"
+fi
+if [ -a "certificates/id_ecdsa-${HOST}.pub" ]
+then
+  rm -rf certificates/id_ecdsa-${HOST}.pub && echo " Deleting old ECDSA public key"
+fi
+ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-${HOST} || exit -1
+
+if [ -a "certificates/id_rsa-${HOST}" ]
+then
+  rm -rf certificates/id_rsa-${HOST} && echo " Deleting old RSA key"
+fi
+if [ -a "certificates/id_rsa-${HOST}.pub" ]
+then
+  rm -rf certificates/id_rsa-${HOST}.pub && echo " Deleting old RSA public key"
+fi
+ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-${HOST} || exit -1
+
+if [ -a "certificates/id_ed25519-${HOST}" ]
+then
+  rm -rf certificates/id_ed25519-${HOST} && echo " Deleting old ED25519 key"
+fi
+if [ -a "certificates/id_ed25519-${HOST}.pub" ]
+then
+  rm -rf certificates/id_ed25519-${HOST}.pub && echo " Deleting old ED25519 public key"
+fi
+ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-${HOST} || exit -1
+}
+
+#
+# Start of the script itself
+#
+
+if [ "${HELP}" = "YES" ]
+then
+  print_help
+fi
+
+# Iterate through known ECDSA keys
+KNOWN_NODES=`ls certificates/id_ecdsa-* | grep -v ".pub" | sed s/"certificates\/id_ecdsa-"//
+
+while read -r HOST
+do
+
   echo ""
 
 done < nodes
