@@ -29,7 +29,7 @@ case $key in
     unset ALLTASKS
     shift # past argument
     ;;
-    -f|--flash-sd-drive)
+    -f|--flash)
     FLASH=YES
     unset ALLTASKS
     shift # past argument
@@ -79,8 +79,7 @@ print_help ()
 # Prints help: need to reconcile with what's defined in the cli options above
 echo ""
 echo "usage $0 [--verbose] [-h|--help]"
-echo "      [-n|--nodes nodes] [-k|--generate-ssh-key] [-f|--flash-sd-drive]"
-echo "      [-d|--device]"
+echo "      [-n|--nodes nodes] [-k|--generate-ssh-key] [-f|--flash] [-d|--device]"
 echo "      [--cluster-name name] [--cluster-timezone zone] [--deployer-username name]"
 exit 0
 }
@@ -307,13 +306,13 @@ for HOST in ${NODES}
 do
   [ -n "${VERBOSE}" ] && echo "Working on node: ${HOST}"
 
-  if [ -n "${ALLTASKS}" ] || [ -n "${KEYS}" ]
+  if [ -n "${ALLTASKS}${KEYS}" ]
   then
     generate_ssh_server_keys
     add_key_to_known_hosts
   fi
 
-  if [ -n "${ALLTASKS}" ] || [ -n "${FLASH}" ]
+  if [ -n "${ALLTASKS}${FLASH}" ]
   then
     flash_image_to_drive
   fi
