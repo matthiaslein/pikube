@@ -5,6 +5,7 @@ unset NODES
 unset KEYS
 unset FLASH
 unset HELP
+unset DEVICE
 unset VERBOSE
 export ALLTASKS=YES
 # Defaut names here (can be set through cli options below)
@@ -19,7 +20,7 @@ key="$1"
 
 case $key in
     -n|--nodes)
-    NODE="$2"
+    NODES="$2"
     shift # past argument
     shift # past value
     ;;
@@ -32,6 +33,11 @@ case $key in
     FLASH=YES
     unset ALLTASKS
     shift # past argument
+    ;;
+    -d|--device)
+    DEVICE="$2"
+    shift # past argument
+    shift # past value
     ;;
     --cluster-name)
     CLUSTER_NAME="$2"
@@ -74,6 +80,7 @@ print_help ()
 echo ""
 echo "usage $0 [--verbose] [-h|--help]"
 echo "      [-n|--nodes nodes] [-k|--generate-ssh-key] [-f|--flash-sd-drive]"
+echo "      [-d|--device]"
 echo "      [--cluster-name name] [--cluster-timezone zone] [--deployer-username name]"
 exit 0
 }
@@ -81,12 +88,19 @@ exit 0
 add_key_to_known_hosts ()
 {
 # Will add the public key of ${HOST} to the user's .ssh/known_hosts file
+[ -n "${VERBOSE}" ] && echo " Making ${HOST}'s key known in known_hosts"
 if ssh-keygen -F ${HOST} &> /dev/null
 then
-  echo " ${HOST}'s key is present in the known hosts file"
+  if [ -n "${VERBOSE}" ]
+  then
+    echo "  a key for ${HOST} is already present in the known hosts file"
+  fi
 else
-  echo " ${HOST}'s key is NOT present in the known hosts file"
-  echo " adding ${HOST},${IP_ADDRESS}"
+  if [ -n "${VERBOSE}" ]
+  then
+    echo "  ${HOST}'s key is NOT present in the known hosts file"
+    echo "  adding ${HOST},${IP_ADDRESS}"
+  fi
   IP_ADDRESS=`getent hosts ${HOST} | awk '{ print $1 }'`
   PUB_KEY=`cat certificates/id_ecdsa-${HOST}.pub | sed s/"== .*"/"=="/`
   echo "${HOST},${IP_ADDRESS} ${PUB_KEY}" >> ~/.ssh/known_hosts
@@ -98,22 +112,29 @@ fi
 generate_user_data_file ()
 # Creates a cloud-init user_data file for ${HOST}
 {
-  echo "Generating cloudconfig user.data file for ${HOST}"
+if [ -n "${VERBOSE}" ]
+then
+  echo " Generating cloudconfig user.data file for ${HOST}"
+fi
 
-  if [ -a "configuration/user-data-${HOST}" ]
+if [ -a "configuration/user-data-${HOST}" ]
+then
+  if [ -n "${VERBOSE}" ]
   then
-    rm -rf configuration/user-data-${HOST} && echo " Deleting old user-data"
+    echo "  Deleting old user-data"
   fi
+  rm -rf configuration/user-data-${HOST}
+fi
 
-  # Fill ssh key variables
-  ECDSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ecdsa-${HOST}` # pragma: allowlist secret
-  ECDSA_PUBLIC_KEY=`cat certificates/id_ecdsa-${HOST}.pub`
-  DSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_dsa-${HOST}` # pragma: allowlist secret
-  DSA_PUBLIC_KEY=`cat certificates/id_dsa-${HOST}.pub`
-  RSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_rsa-${HOST}` # pragma: allowlist secret
-  RSA_PUBLIC_KEY=`cat certificates/id_rsa-${HOST}.pub`
-  ED25519_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-${HOST}` # pragma: allowlist secret
-  ED25519_PUBLIC_KEY=`cat certificates/id_ed25519-${HOST}.pub`
+# Fill ssh key variables
+ECDSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ecdsa-${HOST}` # pragma: allowlist secret
+ECDSA_PUBLIC_KEY=`cat certificates/id_ecdsa-${HOST}.pub`
+DSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_dsa-${HOST}` # pragma: allowlist secret
+DSA_PUBLIC_KEY=`cat certificates/id_dsa-${HOST}.pub`
+RSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_rsa-${HOST}` # pragma: allowlist secret
+RSA_PUBLIC_KEY=`cat certificates/id_rsa-${HOST}.pub`
+ED25519_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-${HOST}` # pragma: allowlist secret
+ED25519_PUBLIC_KEY=`cat certificates/id_ed25519-${HOST}.pub`
 
 # We're going to use the first public key we find in .ssh
 export AUTHORIZED_KEY=`ls ~/.ssh/*.pub | head -n 1 | xargs cat`
@@ -169,49 +190,100 @@ EOF
 generate_ssh_server_keys ()
 {
 # Creates keys for ${HOST}
-echo "Generating ssh keys for ${HOST}"
+[ -n "${VERBOSE}" ] && echo " Generating ssh keys for ${HOST}"
 
 if [ -a "certificates/id_dsa-${HOST}" ]
 then
-  rm -rf certificates/id_dsa-${HOST} && echo " Deleting old DSA key"
+  rm -rf certificates/id_dsa-${HOST}
+  [ -n "${VERBOSE}" ] && echo "  Deleting old DSA key"
 fi
 if [ -a "certificates/id_dsa-${HOST}.pub" ]
 then
-  rm -rf certificates/id_dsa-${HOST}.pub && echo " Deleting old DSA public key"
+  rm -rf certificates/id_dsa-${HOST}.pub
+  [ -n "${VERBOSE}" ] && echo "  Deleting old DSA public key"
 fi
+[ -n "${VERBOSE}" ] && echo "  Creating new DSA key pair"
 ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-${HOST} || exit -1
 
 if [ -a "certificates/id_ecdsa-${HOST}" ]
 then
-  rm -rf certificates/id_ecdsa-${HOST} && echo " Deleting old ECDSA key"
+  rm -rf certificates/id_ecdsa-${HOST}
+  [ -n "${VERBOSE}" ] && echo "  Deleting old ECDSA key"
 fi
 if [ -a "certificates/id_ecdsa-${HOST}.pub" ]
 then
-  rm -rf certificates/id_ecdsa-${HOST}.pub && echo " Deleting old ECDSA public key"
+  rm -rf certificates/id_ecdsa-${HOST}.pub
+  [ -n "${VERBOSE}" ] && echo "  Deleting old ECDSA public key"
 fi
+[ -n "${VERBOSE}" ] && echo "  Creating new ECDSA key pair"
 ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-${HOST} || exit -1
 
 if [ -a "certificates/id_rsa-${HOST}" ]
 then
-  rm -rf certificates/id_rsa-${HOST} && echo " Deleting old RSA key"
+  rm -rf certificates/id_rsa-${HOST}
+  [ -n "${VERBOSE}" ] && echo "  Deleting old RSA key"
 fi
 if [ -a "certificates/id_rsa-${HOST}.pub" ]
 then
-  rm -rf certificates/id_rsa-${HOST}.pub && echo " Deleting old RSA public key"
+  rm -rf certificates/id_rsa-${HOST}.pub
+  [ -n "${VERBOSE}" ] && echo "  Deleting old RSA public key"
 fi
+[ -n "${VERBOSE}" ] && echo "  Creating new RSA key pair"
 ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-${HOST} || exit -1
 
 if [ -a "certificates/id_ed25519-${HOST}" ]
 then
-  rm -rf certificates/id_ed25519-${HOST} && echo " Deleting old ED25519 key"
+  rm -rf certificates/id_ed25519-${HOST}
+  [ -n "${VERBOSE}" ] && echo "  Deleting old ED25519 key"
 fi
 if [ -a "certificates/id_ed25519-${HOST}.pub" ]
 then
-  rm -rf certificates/id_ed25519-${HOST}.pub && echo " Deleting old ED25519 public key"
+  rm -rf certificates/id_ed25519-${HOST}.pub
+   [ -n "${VERBOSE}" ] && echo "  Deleting old ED25519 public key"
 fi
+[ -n "${VERBOSE}" ] && echo "  Creating new ED25519 key pair"
 ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-${HOST} || exit -1
 }
 
+flash_image_to_drive ()
+{
+
+[ -n "${VERBOSE}" ] && echo " Flashing image to sd drive"
+
+if [ -x ./packages/flash ]
+then
+  [ -n "${VERBOSE}" ] && echo "  flash tool found"
+else
+  [ -n "${VERBOSE}" ] && echo "  flash tool not found: downloading"
+  mkdir -p packages
+  cd packages
+  curl -LO https://github.com/hypriot/flash/releases/download/2.7.0/flash &> /dev/null
+  chmod ugo+x flash
+  cd ..
+fi
+
+IMAGE="ubuntu-20.04.1-preinstalled-server-arm64+raspi.img"
+if [ -r ./packages/${IMAGE} ]
+then
+  [ -n "${VERBOSE}" ] && echo "  Ubuntu 20.04 image found"
+else
+  [ -n "${VERBOSE}" ] && echo "  Ubuntu 20.04 image not found: downloading"
+  mkdir -p packages
+  cd packages
+  curl -LO https://cdimage.ubuntu.com/releases/20.04/release/${IMAGE}.xz &> /dev/null
+  [ -n "${VERBOSE}" ] && echo "  Unpacking Ubuntu 20.04 image"
+  unxz ${IMAGE}.xz
+  cd ..
+fi
+
+if [ -n "${DEVICE}" ]
+then
+  echo sudo flash --device ${DEVICE} --force --file ~/dev/pikube/configuration/network-config --userdata ./configuration/user-data-${HOST} ./packages/${IMAGE}
+else
+  echo "Device for flashing not specified"
+  exit -1
+fi
+}
 #
 # Start of the script itself
 #
@@ -222,11 +294,28 @@ then
 fi
 
 # Iterate through known ECDSA keys
-KNOWN_NODES=`ls certificates/id_ecdsa-* | grep -v ".pub" | sed s/"certificates\/id_ecdsa-"//
+#KNOWN_NODES=`ls certificates/id_ecdsa-* | grep -v ".pub" | sed s/"certificates\/id_ecdsa-"//`
 
-while read -r HOST
+# If no nodes are specified as cli options, we read them from the "nodes" file
+if [ -z "${NODES}" ]
+then
+  [ -n "${VERBOSE}" ] && echo "Reading nodes from file"
+  NODES=`cat nodes`
+fi
+
+for HOST in ${NODES}
 do
+  [ -n "${VERBOSE}" ] && echo "Working on node: ${HOST}"
 
-  echo ""
+  if [ -n "${ALLTASKS}" ] || [ -n "${KEYS}" ]
+  then
+    generate_ssh_server_keys
+    add_key_to_known_hosts
+  fi
 
-done < nodes
+  if [ -n "${ALLTASKS}" ] || [ -n "${FLASH}" ]
+  then
+    flash_image_to_drive
+  fi
+
+done
