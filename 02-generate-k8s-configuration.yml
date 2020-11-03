@@ -4,4 +4,3 @@
   user: "{{ deploy_user }}"
   roles:
     - generate-configuration
-

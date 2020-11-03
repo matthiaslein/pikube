@@ -5,7 +5,7 @@
   roles:
     - etcd-host
 
-- name: etcdctl endpoint health 
+- name: etcdctl endpoint health
   hosts: etcd_hosts
   user: "{{ deploy_user }}"
   serial: 1

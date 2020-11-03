@@ -1,8 +1,91 @@
 #!/bin/bash
 
+# Deal with command line options
+unset NODES
+unset KEYS
+unset FLASH
+unset HELP
+unset VERBOSE
+export ALLTASKS=YES
+# Defaut names here (can be set through cli options below)
 export CLUSTER_NAME="pikube"
 export CLUSTER_TIMEZONE="Europe/Berlin"
-export DEPLOYER="pikube-deployer"
+export DEPLOYER="${CLUSTER_NAME}-deployer"
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -n|--nodes)
+    NODE="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -k|--generate-ssh-key)
+    KEYS=YES
+    unset ALLTASKS
+    shift # past argument
+    ;;
+    -f|--flash-sd-drive)
+    FLASH=YES
+    unset ALLTASKS
+    shift # past argument
+    ;;
+    --cluster-name)
+    CLUSTER_NAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    --cluster-timezone)
+    CLUSTER_TIMEZONE="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    --deployer-username)
+    DEPLOYER="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -h|--help)
+    HELP=YES
+    shift # past argument
+    ;;
+    --verbose)
+    VERBOSE=YES
+    shift # past argument
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+set -- "${POSITIONAL[@]}" # restore positional parameters
+
+#
+# Functions for this script are defined here
+#
+
+print_help ()
+{
+echo ""
+echo "usage $0 [--verbose] [-h|--help]"
+echo "      [-n|--nodes nodes] [-k|--generate-ssh-key] [-f|--flash-sd-drive]"
+echo "      [--cluster-name name] [--cluster-timezone zone] [--deployer-username name]"
+exit 0
+}
+
+#
+# Start of the script itself
+#
+
+if [ "${HELP}" = "YES" ]
+then
+  print_help
+fi
+
 
 # We're going to use the first public key we find in .ssh
 export AUTHORIZED_KEY=`ls ~/.ssh/*.pub | head -n 1 | xargs cat`

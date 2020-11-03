@@ -19,4 +19,3 @@
     ownca_path: "certificates/{{ cluster_name }}-ca.crt"
     ownca_privatekey_path: "certificates/{{ cluster_name }}-ca.key"
     provider: ownca
-

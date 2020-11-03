@@ -2,7 +2,7 @@
 
 - name: Enable kernel modules
   become: true
-  lineinfile: 
+  lineinfile:
     path: /etc/modules-load.d/modules.conf
     line: "{{ item }}"
     state: present
@@ -34,9 +34,9 @@
 
 - name: Enable accounting
   become: true
-  lineinfile: 
+  lineinfile:
     path: /etc/systemd/system.conf
-    regexp: '#{{ item }}=no' 
+    regexp: '#{{ item }}=no'
     line: '{{ item }}=yes'
     backrefs: yes # w/o this, the operation isn't idempotent'
   with_items:
@@ -70,4 +70,3 @@
   file:
     path: /etc/cni/net.d
     state: directory
-
