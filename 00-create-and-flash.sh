@@ -142,13 +142,13 @@ do
   fi
 
   # Fill ssh key variables
-  ECDSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ecdsa-${HOST}`
+  ECDSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ecdsa-${HOST}` # pragma: allowlist secret
   ECDSA_PUBLIC_KEY=`cat certificates/id_ecdsa-${HOST}.pub`
-  DSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_dsa-${HOST}`
+  DSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_dsa-${HOST}` # pragma: allowlist secret
   DSA_PUBLIC_KEY=`cat certificates/id_dsa-${HOST}.pub`
-  RSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_rsa-${HOST}`
+  RSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_rsa-${HOST}` # pragma: allowlist secret
   RSA_PUBLIC_KEY=`cat certificates/id_rsa-${HOST}.pub`
-  ED25519_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-${HOST}`
+  ED25519_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-${HOST}` # pragma: allowlist secret
   ED25519_PUBLIC_KEY=`cat certificates/id_ed25519-${HOST}.pub`
 
   cat > configuration/user-data-${HOST} << EOF
@@ -159,7 +159,7 @@ users:
   - default
   - name: ${DEPLOYER}
     gecos: "${CLUSTER_NAME} deployer account"
-    sudo: ALL=(ALL) NOPASSWD:ALL
+    sudo: ALL=(ALL) NOPASSWD:ALL # pragma: allowlist secret
     shell: /bin/bash
     groups: users,adm,dialout,audio,plugdev,netdev,video
     lock_passwd: true
@@ -193,7 +193,7 @@ ${ED25519_PRIVATE_KEY}
 users:
   - name: ${DEPLOYER}
     gecos: "${CLUSTER_NAME} Deployer Account"
-    sudo: ALL=(ALL) NOPASSWD:ALL
+    sudo: ALL=(ALL) NOPASSWD:ALL # pragma: allowlist secret
     shell: /bin/bash
     groups: users,adm,dialout,audio,plugdev,netdev,video
     ssh-import-id: None

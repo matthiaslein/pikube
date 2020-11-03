@@ -11,7 +11,7 @@ hostname: {{ inventory_hostname }}
 users:
   - name: {{ deployer_account }}
     gecos: "{{ deploy_user }} Account"
-    sudo: ALL=(ALL) NOPASSWD:ALL
+    sudo: ALL=(ALL) NOPASSWD:ALL # pragma: allowlist secret
     shell: /bin/bash
     groups: users,adm,dialout,audio,plugdev,netdev,video
     ssh-import-id: None

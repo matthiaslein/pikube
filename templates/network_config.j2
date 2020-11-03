@@ -18,13 +18,4 @@ wifis:
     optional: true
     access-points:
       {{ wifi_ssid }}:
-        password: "{{ wifi_passwd }}"
-#      myotherlan:
-#        password: "correct battery horse staple"
-#      workssid:
-#        auth:
-#          key-management: eap
-#          method: peap
-#          identity: "me@example.com"
-#          password: "passw0rd"
-#          ca-certificate: /etc/my_ca.pem
+        password: "{{ wifi_passwd }}" # pragma: allowlist secret
