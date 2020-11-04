@@ -88,7 +88,7 @@ add_key_to_known_hosts ()
 {
 # Will add the public key of ${HOST} to the user's .ssh/known_hosts file
 [ -n "${VERBOSE}" ] && echo " Making ${HOST}'s key known in known_hosts"
-if ssh-keygen -F ${HOST} &> /dev/null
+if ssh-keygen -F "${HOST}" &> /dev/null
 then
   if [ -n "${VERBOSE}" ]
   then
@@ -100,8 +100,8 @@ else
     echo "  ${HOST}'s key is NOT present in the known hosts file"
     echo "  adding ${HOST},${IP_ADDRESS}"
   fi
-  IP_ADDRESS=`getent hosts ${HOST} | awk '{ print $1 }'`
-  PUB_KEY=`cat certificates/id_ecdsa-${HOST}.pub | sed s/"== .*"/"=="/`
+  IP_ADDRESS=$(getent hosts "${HOST}" | awk '{ print $1 }')
+  PUB_KEY=$(sed s/'== .*'/==/ certificates/id_ecdsa-"${HOST}".pub)
   echo "${HOST},${IP_ADDRESS} ${PUB_KEY}" >> ~/.ssh/known_hosts
   ssh-keygen -Hf ~/.ssh/known_hosts &> /dev/null
   rm -rf ~/.ssh/known_hosts.old
@@ -122,23 +122,23 @@ then
   then
     echo "  Deleting old user-data"
   fi
-  rm -rf configuration/user-data-${HOST}
+  rm -rf configuration/user-data-"${HOST}"
 fi
 
 # Fill ssh key variables
-ECDSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ecdsa-${HOST}` # pragma: allowlist secret
-ECDSA_PUBLIC_KEY=`cat certificates/id_ecdsa-${HOST}.pub`
-DSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_dsa-${HOST}` # pragma: allowlist secret
-DSA_PUBLIC_KEY=`cat certificates/id_dsa-${HOST}.pub`
-RSA_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_rsa-${HOST}` # pragma: allowlist secret
-RSA_PUBLIC_KEY=`cat certificates/id_rsa-${HOST}.pub`
-ED25519_PRIVATE_KEY=`while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-${HOST}` # pragma: allowlist secret
-ED25519_PUBLIC_KEY=`cat certificates/id_ed25519-${HOST}.pub`
+ECDSA_PRIVATE_KEY=$(while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ecdsa-"${HOST}") # pragma: allowlist secret
+ECDSA_PUBLIC_KEY=$(cat certificates/id_ecdsa-"${HOST}".pub)
+DSA_PRIVATE_KEY=$(while read -r LINE; do echo "    ${LINE}"; done < certificates/id_dsa-"${HOST}") # pragma: allowlist secret
+DSA_PUBLIC_KEY=$(cat certificates/id_dsa-"${HOST}".pub)
+RSA_PRIVATE_KEY=$(while read -r LINE; do echo "    ${LINE}"; done < certificates/id_rsa-"${HOST}") # pragma: allowlist secret
+RSA_PUBLIC_KEY=$(cat certificates/id_rsa-"${HOST}".pub)
+ED25519_PRIVATE_KEY=$(while read -r LINE; do echo "    ${LINE}"; done < certificates/id_ed25519-"${HOST}") # pragma: allowlist secret
+ED25519_PUBLIC_KEY=$(cat certificates/id_ed25519-"${HOST}".pub)
 
 # We're going to use the first public key we find in .ssh
-export AUTHORIZED_KEY=`ls ~/.ssh/*.pub | head -n 1 | xargs cat`
+AUTHORIZED_KEY=$(find ~/.ssh -iname '*.pub' | head -n 1 | xargs cat)
 
-cat > configuration/user-data-${HOST} << EOF
+cat > configuration/user-data-"${HOST}" << EOF
 #cloud-config
 
 # Set hostname
@@ -193,55 +193,55 @@ generate_ssh_server_keys ()
 
 if [ -a "certificates/id_dsa-${HOST}" ]
 then
-  rm -rf certificates/id_dsa-${HOST}
+  rm -rf certificates/id_dsa-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old DSA key"
 fi
 if [ -a "certificates/id_dsa-${HOST}.pub" ]
 then
-  rm -rf certificates/id_dsa-${HOST}.pub
+  rm -rf certificates/id_dsa-"${HOST}".pub
   [ -n "${VERBOSE}" ] && echo "  Deleting old DSA public key"
 fi
 [ -n "${VERBOSE}" ] && echo "  Creating new DSA key pair"
-ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-${HOST} || exit -1
+ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-"${HOST}" || exit 1
 
 if [ -a "certificates/id_ecdsa-${HOST}" ]
 then
-  rm -rf certificates/id_ecdsa-${HOST}
+  rm -rf certificates/id_ecdsa-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old ECDSA key"
 fi
 if [ -a "certificates/id_ecdsa-${HOST}.pub" ]
 then
-  rm -rf certificates/id_ecdsa-${HOST}.pub
+  rm -rf certificates/id_ecdsa-"${HOST}".pub
   [ -n "${VERBOSE}" ] && echo "  Deleting old ECDSA public key"
 fi
 [ -n "${VERBOSE}" ] && echo "  Creating new ECDSA key pair"
-ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-${HOST} || exit -1
+ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-"${HOST}" || exit 1
 
 if [ -a "certificates/id_rsa-${HOST}" ]
 then
-  rm -rf certificates/id_rsa-${HOST}
+  rm -rf certificates/id_rsa-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old RSA key"
 fi
 if [ -a "certificates/id_rsa-${HOST}.pub" ]
 then
-  rm -rf certificates/id_rsa-${HOST}.pub
+  rm -rf certificates/id_rsa-"${HOST}".pub
   [ -n "${VERBOSE}" ] && echo "  Deleting old RSA public key"
 fi
 [ -n "${VERBOSE}" ] && echo "  Creating new RSA key pair"
-ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-${HOST} || exit -1
+ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-"${HOST}" || exit 1
 
 if [ -a "certificates/id_ed25519-${HOST}" ]
 then
-  rm -rf certificates/id_ed25519-${HOST}
+  rm -rf certificates/id_ed25519-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old ED25519 key"
 fi
 if [ -a "certificates/id_ed25519-${HOST}.pub" ]
 then
-  rm -rf certificates/id_ed25519-${HOST}.pub
+  rm -rf certificates/id_ed25519-"${HOST}".pub
    [ -n "${VERBOSE}" ] && echo "  Deleting old ED25519 public key"
 fi
 [ -n "${VERBOSE}" ] && echo "  Creating new ED25519 key pair"
-ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-${HOST} || exit -1
+ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-"${HOST}" || exit 1
 }
 
 flash_image_to_drive ()
@@ -255,7 +255,7 @@ then
 else
   [ -n "${VERBOSE}" ] && echo "  flash tool not found: downloading"
   mkdir -p packages
-  cd packages
+  cd packages || exit 1
   curl -LO https://github.com/hypriot/flash/releases/download/2.7.0/flash &> /dev/null
   chmod ugo+x flash
   cd ..
@@ -268,7 +268,7 @@ then
 else
   [ -n "${VERBOSE}" ] && echo "  Ubuntu 20.04 image not found: downloading"
   mkdir -p packages
-  cd packages
+  cd packages || exit 1
   curl -LO https://cdimage.ubuntu.com/releases/20.04/release/${IMAGE}.xz &> /dev/null
   [ -n "${VERBOSE}" ] && echo "  Unpacking Ubuntu 20.04 image"
   unxz ${IMAGE}.xz
@@ -277,10 +277,10 @@ fi
 
 if [ -n "${DEVICE}" ]
 then
-  echo sudo flash --device ${DEVICE} --force --file ~/dev/pikube/configuration/network-config --userdata ./configuration/user-data-${HOST} ./packages/${IMAGE}
+  echo sudo flash --device "${DEVICE}" --force --file ~/dev/pikube/configuration/network-config --userdata ./configuration/user-data-"${HOST}" ./packages/"${IMAGE}"
 else
   echo "Device for flashing not specified"
-  exit -1
+  exit 1
 fi
 }
 #
@@ -293,13 +293,13 @@ then
 fi
 
 # Iterate through known ECDSA keys
-#KNOWN_NODES=`ls certificates/id_ecdsa-* | grep -v ".pub" | sed s/"certificates\/id_ecdsa-"//`
+#KNOWN_NODES=$(ls certificates/id_ecdsa-* | grep -v ".pub" | sed s/"certificates\/id_ecdsa-"//)
 
 # If no nodes are specified as cli options, we read them from the "nodes" file
 if [ -z "${NODES}" ]
 then
   [ -n "${VERBOSE}" ] && echo "Reading nodes from file"
-  NODES=`cat nodes`
+  NODES=$(cat nodes)
 fi
 
 for HOST in ${NODES}
