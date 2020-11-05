@@ -22,6 +22,11 @@ repos:
     -   id: debug-statements
     -   id: check-ast
     -   id: check-executables-have-shebangs
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.3.5
+    hooks:
+    -   id: reorder-python-imports
+        args: [--py3-plus]
 -   repo: https://github.com/psf/black
     rev: 20.8b1
     hooks:

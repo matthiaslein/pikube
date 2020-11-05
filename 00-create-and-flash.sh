@@ -7,6 +7,7 @@ unset FLASH
 unset HELP
 unset DEVICE
 unset VERBOSE
+unset OVERWRITE
 export ALLTASKS=YES
 # Defaut names here (can be set through cli options below)
 export CLUSTER_NAME="pikube"
@@ -32,6 +33,10 @@ case $key in
     -f|--flash)
     FLASH=YES
     unset ALLTASKS
+    shift # past argument
+    ;;
+    -o|--overwrite)
+    OVERWRITE=YES
     shift # past argument
     ;;
     -d|--device)
@@ -81,6 +86,7 @@ echo ""
 echo "usage $0 [--verbose] [-h|--help]"
 echo "      [-n|--nodes nodes] [-k|--generate-ssh-key] [-f|--flash] [-d|--device]"
 echo "      [--cluster-name name] [--cluster-timezone zone] [--deployer-username name]"
+echo "      [-o|--overwrite]"
 exit 0
 }
 
@@ -116,7 +122,7 @@ then
   echo " Generating cloudconfig user.data file for ${HOST}"
 fi
 
-if [ -a "configuration/user-data-${HOST}" ]
+if [ -a "configuration/user-data-${HOST}" ] && [ -n "${OVERWRITE}" ]
 then
   if [ -n "${VERBOSE}" ]
   then
@@ -138,6 +144,8 @@ ED25519_PUBLIC_KEY=$(cat certificates/id_ed25519-"${HOST}".pub)
 # We're going to use the first public key we find in .ssh
 AUTHORIZED_KEY=$(find ~/.ssh -iname '*.pub' | head -n 1 | xargs cat)
 
+if [ ! -f "configuration/user-data-${HOST}" ] || [ -n "${OVERWRITE}" ]
+then
 cat > configuration/user-data-"${HOST}" << EOF
 #cloud-config
 
@@ -184,6 +192,7 @@ power_state:
  timeout: 60
  condition: True
 EOF
+fi
 }
 
 generate_ssh_server_keys ()
@@ -191,57 +200,77 @@ generate_ssh_server_keys ()
 # Creates keys for ${HOST}
 [ -n "${VERBOSE}" ] && echo " Generating ssh keys for ${HOST}"
 
-if [ -a "certificates/id_dsa-${HOST}" ]
+if [ -a "certificates/id_dsa-${HOST}" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_dsa-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old DSA key"
 fi
-if [ -a "certificates/id_dsa-${HOST}.pub" ]
+if [ -a "certificates/id_dsa-${HOST}.pub" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_dsa-"${HOST}".pub
   [ -n "${VERBOSE}" ] && echo "  Deleting old DSA public key"
 fi
-[ -n "${VERBOSE}" ] && echo "  Creating new DSA key pair"
-ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-"${HOST}" || exit 1
+if [ ! -f "certificates/id_dsa-${HOST}" ] || [ -n "${OVERWRITE}" ]
+then
+  [ -n "${VERBOSE}" ] && echo "  Creating new DSA key pair"
+  ssh-keygen -q -t dsa -b 1024 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_dsa-"${HOST}" || exit 1
+else
+  [ -n "${VERBOSE}" ] && echo "  DSA key pair exists"
+fi
 
-if [ -a "certificates/id_ecdsa-${HOST}" ]
+if [ -a "certificates/id_ecdsa-${HOST}" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_ecdsa-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old ECDSA key"
 fi
-if [ -a "certificates/id_ecdsa-${HOST}.pub" ]
+if [ -a "certificates/id_ecdsa-${HOST}.pub" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_ecdsa-"${HOST}".pub
   [ -n "${VERBOSE}" ] && echo "  Deleting old ECDSA public key"
 fi
-[ -n "${VERBOSE}" ] && echo "  Creating new ECDSA key pair"
-ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-"${HOST}" || exit 1
+if [ ! -f "certificates/id_ecdsa-${HOST}" ] || [ -n "${OVERWRITE}" ]
+then
+  [ -n "${VERBOSE}" ] && echo "  Creating new ECDSA key pair"
+  ssh-keygen -q -t ecdsa -b 521 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ecdsa-"${HOST}" || exit 1
+else
+  [ -n "${VERBOSE}" ] && echo "  ECDSA key pair exists"
+fi
 
-if [ -a "certificates/id_rsa-${HOST}" ]
+if [ -a "certificates/id_rsa-${HOST}" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_rsa-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old RSA key"
 fi
-if [ -a "certificates/id_rsa-${HOST}.pub" ]
+if [ -a "certificates/id_rsa-${HOST}.pub" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_rsa-"${HOST}".pub
   [ -n "${VERBOSE}" ] && echo "  Deleting old RSA public key"
 fi
-[ -n "${VERBOSE}" ] && echo "  Creating new RSA key pair"
-ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-"${HOST}" || exit 1
+if [ ! -f "certificates/id_rsa-${HOST}" ] || [ -n "${OVERWRITE}" ]
+then
+  [ -n "${VERBOSE}" ] && echo "  Creating new RSA key pair"
+  ssh-keygen -q -t rsa -b 4096 -o -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_rsa-"${HOST}" || exit 1
+else
+  [ -n "${VERBOSE}" ] && echo "  RSA key pair exists"
+fi
 
-if [ -a "certificates/id_ed25519-${HOST}" ]
+if [ -a "certificates/id_ed25519-${HOST}" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_ed25519-"${HOST}"
   [ -n "${VERBOSE}" ] && echo "  Deleting old ED25519 key"
 fi
-if [ -a "certificates/id_ed25519-${HOST}.pub" ]
+if [ -a "certificates/id_ed25519-${HOST}.pub" ] && [ -n "${OVERWRITE}" ]
 then
   rm -rf certificates/id_ed25519-"${HOST}".pub
    [ -n "${VERBOSE}" ] && echo "  Deleting old ED25519 public key"
 fi
-[ -n "${VERBOSE}" ] && echo "  Creating new ED25519 key pair"
-ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-"${HOST}" || exit 1
+if [ ! -f "certificates/id_ed25519-${HOST}" ] || [ -n "${OVERWRITE}" ]
+then
+  [ -n "${VERBOSE}" ] && echo "  Creating new ED25519 key pair"
+  ssh-keygen -q -t ed25519 -a 100 -C "${DEPLOYER}@localhost" -N '' -f certificates/id_ed25519-"${HOST}" || exit 1
+else
+  [ -n "${VERBOSE}" ] && echo "  ED25519 key pair exists"
+fi
 }
 
 flash_image_to_drive ()
@@ -277,7 +306,11 @@ fi
 
 if [ -n "${DEVICE}" ]
 then
-  echo sudo flash --device "${DEVICE}" --force --file ~/dev/pikube/configuration/network-config --userdata ./configuration/user-data-"${HOST}" ./packages/"${IMAGE}"
+  echo ""
+  echo "Please insert the sd drive into ${DEVICE}"
+  echo "This drive WILL BE OVERWRITTEN with the data for ${HOST}"
+  read -n 1 -s -r -p "Press any key to continue (Ctrl-c to abort)"
+  sudo flash --device "${DEVICE}" --force --file ~/dev/pikube/configuration/network-config --userdata ./configuration/user-data-"${HOST}" ./packages/"${IMAGE}"
 else
   echo "Device for flashing not specified"
   exit 1
