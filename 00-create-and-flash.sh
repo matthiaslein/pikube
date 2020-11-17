@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Safety first
+set -o nounset # exit if unset variable is used
+set -o errexit # exit if any statement returns an error
+
 # Deal with command line options
 unset NODES
 unset KEYS
