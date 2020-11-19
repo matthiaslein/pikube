@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # Safety first
-set -o nounset # exit if unset variable is used
+#set -o nounset # exit if unset variable is used
 set -o errexit # exit if any statement returns an error
+set -o pipefail # exit if any pipe fails
 
 # Deal with command line options
 unset NODES
@@ -289,7 +290,7 @@ else
   [ -n "${VERBOSE}" ] && echo "  flash tool not found: downloading"
   mkdir -p packages
   cd packages || exit 1
-  curl -LO https://github.com/hypriot/flash/releases/download/2.7.0/flash &> /dev/null
+  curl -LO https://github.com/hypriot/flash/releases/download/2.7.1/flash &> /dev/null
   chmod ugo+x flash
   cd ..
 fi
@@ -314,7 +315,8 @@ then
   echo "Please insert the sd drive into ${DEVICE}"
   echo "This drive WILL BE OVERWRITTEN with the data for ${HOST}"
   read -n 1 -s -r -p "Press any key to continue (Ctrl-c to abort)"
-  sudo flash --device "${DEVICE}" --force --file ~/dev/pikube/configuration/network-config --userdata ./configuration/user-data-"${HOST}" ./packages/"${IMAGE}"
+  echo ""
+  ./packages/flash --device "${DEVICE}" --force --file ./configuration/network-config --userdata ./configuration/user-data-"${HOST}" ./packages/"${IMAGE}"
 else
   echo "Device for flashing not specified"
   exit 1

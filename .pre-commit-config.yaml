@@ -38,7 +38,7 @@ repos:
     -   id: check-xml
 # Check Python
 -   repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.3.5
+    rev: v2.3.6
     hooks:
     -   id: reorder-python-imports
         args: [--py3-plus]
@@ -74,7 +74,7 @@ repos:
     -   id: bandit
 # Check jupyter notebooks
 -   repo: https://github.com/nbQA-dev/nbQA
-    rev: 0.3.6
+    rev: 0.4.1
     hooks:
     -   id: nbqa
     -   id: nbqa-black
