@@ -7,5 +7,6 @@
   when: cri_used == "crio"
 - include: docker_installation.yml
   when: cri_used == "docker"
-- include: k8s_binaries_installation.yml
+#- include: k8s_binaries_installation.yml
+- include: ceph_installation.yml
 - include: cleanup-reboot.yml

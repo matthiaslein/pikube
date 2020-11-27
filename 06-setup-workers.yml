@@ -1,6 +1,0 @@
-# High level instructions for which tasks apply to which hosts
-- name: Setup worker nodes
-  hosts: workers
-  user: "{{ deploy_user }}"
-  roles:
-    - k8s-worker

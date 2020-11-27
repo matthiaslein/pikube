@@ -1,3 +1,0 @@
-# include other YAML files with tasks here
-#- include: apt_update_upgrade.yml
-- include: k8s_binaries_installation.yml

@@ -15,3 +15,20 @@
 - include: generate_service-account_certificate.yml
 - include: generate_worker_certificate.yml
 - include: generate_encryption_config.yml
+
+# Tasks for the creation of config files and downloads of components
+- name: Create directory for configuration files
+  file:
+    path: configuration
+    state: directory
+
+- include: etcd_download.yml
+- include: k8s_download.yml
+# Not sure if the crio download is needed
+- include: crio_download.yml
+  when: cri_used == "crio"
+- include: generate_kube-proxy_kubeconfig.yml
+- include: generate_kube-controller-manager_kubeconfig.yml
+- include: generate_kube-scheduler_kubeconfig.yml
+- include: generate_admin_kubeconfig.yml
+- include: generate_kubelet_kubeconfigs.yml

@@ -15,7 +15,7 @@
       - nonRepudiation
       - keyEncipherment
     subject: "CN=etcd-server"
-    subject_alt_name: "{{ etcd_ips }},IP:127.0.0.1,{{ etcd_names }}"
+    subject_alt_name: "{{ masters_ips }},IP:127.0.0.1,{{ masters_names }}"
 
 - name: Sign the etcd key with CA to obtain etcd certificate
   openssl_certificate:

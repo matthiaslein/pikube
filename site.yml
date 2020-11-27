@@ -1,0 +1,42 @@
+# Base setup for every option
+- name: Prepare all hosts with common setup and container runtime
+  hosts: all
+  user: "{{ deploy_user }}"
+  roles:
+    - common
+
+# Choose the right path for the selected k8s distribution
+
+# Vanilla/Google k8s first
+#
+# Generate public key infrastructure for tls and k8s config
+- name: Basic setup for tls infrastructure and config files
+  hosts: localhost
+  user: "{{ deploy_user }}"
+  roles:
+    - vanilla-k8s-setup
+  when: k8s_distribution == "k8s"
+# Deploy masters
+- name: Setup k8s master nodes
+  hosts: masters
+  user: "{{ deploy_user }}"
+  roles:
+    - vanilla-k8s-master
+  when: k8s_distribution == "k8s"
+# Smoke tests
+- name: Check etcd endpoint health with etcdctl from every master
+  hosts: masters
+  user: "{{ deploy_user }}"
+  serial: 1
+  tasks:
+    - name: etcd smoke test
+      become: yes
+      shell: 'etcdctl --endpoints=https://{{ ansible_host }}:2379 --cacert=/etc/etcd/"{{ cluster_name }}"-ca.crt --cert=/etc/etcd/"{{ cluster_name }}"-etcd.crt --key=/etc/etcd/"{{ cluster_name }}"-etcd.key endpoint health'
+  when: k8s_distribution == "k8s"
+# Deploy workers
+- name: Setup worker nodes
+  hosts: workers
+  user: "{{ deploy_user }}"
+  roles:
+    - vanilla-k8s-worker
+  when: k8s_distribution == "k8s"

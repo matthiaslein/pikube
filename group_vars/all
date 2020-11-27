@@ -4,16 +4,18 @@ deploy_user: "{{ cluster_name }}-deployer"
 os_used: Ubuntu
 os_version: "20.04"
 
-#cri_used: "crio"
+# Supported values: "docker" and "crio"
 cri_used: "docker"
+
+# For cri_used = "crio"
+# Supported values "1.17"
+crio_version: "1.17"
+
+# Supported values: "k3s", "microk8s" and "k8s"
+k8s_distribution: "k3s"
 
 k8s_version: "v1.19.0"
 #k8s_version: "v1.18.2"
-
-crio_version: "v1.19.0"
-#crio_version: 1.18
-#crio_version: 1.17
-#crio_version: 1.16
 
 etcd_version: v3.4.7
 
@@ -24,6 +26,3 @@ service_cidr: "10.91.0.0/16"
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 masters_ips: "IP:{{ groups['masters'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
 masters_names: "DNS:{{ groups['masters'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"
-
-etcd_ips: "IP:{{ groups['etcd_hosts'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
-etcd_names: "DNS:{{ groups['etcd_hosts'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"
