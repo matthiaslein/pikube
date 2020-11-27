@@ -19,10 +19,13 @@ k8s_version: "v1.19.0"
 
 etcd_version: v3.4.7
 
+k3s_version: v1.19.4+k3s1
+
 cluster_node_cidr: "192.168.178.0/24"
 cluster_pod_cidr: "10.90.0.0/16"
 service_cidr: "10.91.0.0/16"
 
 # https://stackoverflow.com/questions/36328907/ansible-get-all-the-ip-addresses-of-a-group
 masters_ips: "IP:{{ groups['masters'] | map('extract', hostvars, ['ansible_host']) | join(',IP:') }}"
+master_ip: "{{ hostvars[groups['masters'][0]]['ansible_host'] | default(groups['masters'][0]) }}"
 masters_names: "DNS:{{ groups['masters'] | map('extract', hostvars, ['inventory_hostname']) | join(',DNS:') }}"

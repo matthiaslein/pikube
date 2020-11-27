@@ -17,9 +17,9 @@
 - include: generate_encryption_config.yml
 
 # Tasks for the creation of config files and downloads of components
-- name: Create directory for configuration files
+- name: Create directory for downloaded files
   file:
-    path: configuration
+    path: packages
     state: directory
 
 - include: etcd_download.yml
@@ -27,6 +27,12 @@
 # Not sure if the crio download is needed
 - include: crio_download.yml
   when: cri_used == "crio"
+
+- name: Create directory for configuration files
+  file:
+    path: configuration
+    state: directory
+
 - include: generate_kube-proxy_kubeconfig.yml
 - include: generate_kube-controller-manager_kubeconfig.yml
 - include: generate_kube-scheduler_kubeconfig.yml

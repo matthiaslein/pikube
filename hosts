@@ -1,19 +1,15 @@
 all:
   children:
-    proxies:
-      hosts:
-        pikube-master:
-          ansible_host: 192.168.178.80
     masters:
       hosts:
         pikube-master:
           ansible_host: 192.168.178.80
+    workers:
+      hosts:
         pikube-01:
           ansible_host: 192.168.178.81
         pikube-02:
           ansible_host: 192.168.178.82
-    workers:
-      hosts:
         pikube-03:
           ansible_host: 192.168.178.83
         pikube-04:

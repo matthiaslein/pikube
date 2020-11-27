@@ -7,20 +7,21 @@
 
 # Choose the right path for the selected k8s distribution
 
-# Vanilla/Google k8s first
 - name: Basic setup for tls infrastructure and config files
   hosts: localhost
   user: "{{ deploy_user }}"
   roles:
-    - role: vanilla-k8s-setup
+    - role: vanilla-k8s/setup
       when: k8s_distribution == "k8s"
 
 - name: Setup k8s master nodes
   hosts: masters
   user: "{{ deploy_user }}"
   roles:
-    - role: vanilla-k8s-master
+    - role: vanilla-k8s/master
       when: k8s_distribution == "k8s"
+    - role: k3s/master
+      when: k8s_distribution == "k3s"
 
 - name: Check etcd endpoint health with etcdctl from every master
   hosts: masters
@@ -36,7 +37,7 @@
   hosts: workers
   user: "{{ deploy_user }}"
   roles:
-    - role: vanilla-k8s-worker
+    - role: vanilla-k8s/worker
       when: k8s_distribution == "k8s"
-
-# Rancher's k3s
+    - role: k3s/worker
+      when: k8s_distribution == "k3s"
