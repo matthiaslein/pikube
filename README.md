@@ -30,3 +30,42 @@ kubectl exec -ti dnsutils -- cat /etc/resolv.conf
 kubectl get svc --all-namespaces
 
 kubectl get nodes -o jsonpath='{range .items[*]} {.metadata.name}{"  "}{.spec.podCIDR}{"\n"}{end}'
+
+# Deploy K8s dashboard with
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml
+
+kubectl create serviceaccount dashboard-admin-sa
+
+kubectl create clusterrolebinding dashboard-admin-sa --clusterrole=cluster-admin --serviceaccount=default:dashboard-admin-sa
+
+kubectl get secrets
+
+kubectl describe secret dashboard-admin-sa-token-?????
+or
+kubectl -n default describe secret $(kubectl -n kube-system get secret | awk '/^dashboard-admin-sa-token-/{print $1}') | awk '$1=="token:"{print $2}' | tail -n 1
+
+http://127.0.0.1:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+
+# Deploy rook
+# https://rook.io/docs/rook/v1.2/helm-operator.html
+helm repo add rook-release https://charts.rook.io/release
+kubectl create namespace rook-ceph
+helm install --namespace rook-ceph rook-release/rook-ceph --generate-name
+
+# Create Ceph cluster
+kubectl create -f templates/rook-ceph-cluster.yml
+kubectl -n rook-ceph get pod
+
+# Patching CRDs if namespace is stuck in terminating
+for CRD in $(kubectl get crd -n rook-ceph | awk '/ceph.rook.io/ {print $1}'); do kubectl patch crd -n rook-ceph $CRD --type merge -p '{"metadata":{"finalizers": [null]}}'; done
+
+# rook ceph healthchecks
+https://github.com/rook/rook/blob/master/Documentation/ceph-toolbox.md
+
+# rook ceph teardown
+https://github.com/rook/rook/blob/master/Documentation/ceph-teardown.md
+
+# nginx-ingress-controller
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install my-release ingress-nginx/ingress-nginx

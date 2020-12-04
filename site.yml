@@ -13,6 +13,8 @@
   roles:
     - role: vanilla-k8s/setup
       when: k8s_distribution == "k8s"
+    - role: k3s/setup
+      when: k8s_distribution == "k3s"
 
 - name: Setup k8s master nodes
   hosts: masters
