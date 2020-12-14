@@ -1,6 +1,0 @@
-# Kubeconfigs are stored in the configuration directory
-- name: Generate kubeconfigs
-  hosts: localhost
-  user: "{{ deploy_user }}"
-  roles:
-    - generate-configuration

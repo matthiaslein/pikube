@@ -2,16 +2,6 @@
 
 # This is the right place for Ubuntu 20.04. In earlier versions, the correct
 # file used to be /boot/firmware/btcmd.txt or /boot/firmware/nobtcmd.txt
-- name: make sure cgroups are enabled (Ubuntu 18.04)
-  become: true
-  template:
-    src: templates/{{ item }}-Ubuntu-18.04.j2
-    dest: /boot/firmware/{{ item }}.txt
-  register: cgroups_enabled
-  with_items:
-    - nobtcmd
-    - btcmd
-  when: hostvars[inventory_hostname].ansible_distribution == "Ubuntu" and hostvars[inventory_hostname].ansible_distribution_major_version == "18"
 
 - name: make sure cgroups are enabled (Ubuntu 20.04)
   become: true
@@ -20,6 +10,14 @@
     dest: /boot/firmware/cmdline.txt
   register: cgroups_enabled
   when: hostvars[inventory_hostname].ansible_distribution == "Ubuntu" and hostvars[inventory_hostname].ansible_distribution_major_version == "20"
+
+- name: apt auto-upgrade
+  become: true
+  apt:
+    upgrade: 'yes'
+    update_cache: yes
+    cache_valid_time: 86400 #Only update if cache is older than one day
+  register: apt_update_upgrade
 
 - name: make sure necessary packages are installed
   become: true
@@ -33,14 +31,6 @@
     - dnsmasq
     - resolvconf
     - net-tools
-
-- name: apt-get update and apt-get upgrade
-  become: true
-  apt:
-    upgrade: 'yes'
-    update_cache: yes
-    cache_valid_time: 86400 #Only update if cache is older than one day
-  register: apt_update_upgrade
 
 - name: apt-get autoclean
   become: true

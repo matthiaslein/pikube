@@ -1,6 +1,0 @@
-# High level instructions for which tasks apply to which hosts
-- name: Setup master nodes
-  hosts: masters
-  user: "{{ deploy_user }}"
-  roles:
-    - k8s-master

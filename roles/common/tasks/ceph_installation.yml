@@ -1,0 +1,17 @@
+# Installing a ceph cluster
+# Documentation at
+# https://github.com/CyberHippo/Ceph-Pi
+
+- name: install ntp
+  become: true
+  apt:
+    pkg:
+    - ntp
+    - ntpdate
+    - ntp-doc
+
+- name: install ceph
+  become: true
+  apt:
+    pkg:
+    - ceph

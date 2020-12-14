@@ -1,0 +1,6 @@
+- name: Create directory for downloaded files
+  file:
+    path: packages
+    state: directory
+
+- include: k3s_download.yml

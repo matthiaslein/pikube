@@ -1,27 +1,13 @@
 all:
   children:
-    proxies:
-      hosts:
-        pikube-master:
-          ansible_host: 192.168.178.80
-    etcd_hosts:
-      hosts:
-        pikube-master:
-          ansible_host: 192.168.178.80
-        pikube-01:
-          ansible_host: 192.168.178.81
-        pikube-02:
-          ansible_host: 192.168.178.82
     masters:
       hosts:
-        pikube-master:
-          ansible_host: 192.168.178.80
         pikube-01:
           ansible_host: 192.168.178.81
-        pikube-02:
-          ansible_host: 192.168.178.82
     workers:
       hosts:
+        pikube-02:
+          ansible_host: 192.168.178.82
         pikube-03:
           ansible_host: 192.168.178.83
         pikube-04:
@@ -32,5 +18,7 @@ all:
           ansible_host: 192.168.178.86
         pikube-07:
           ansible_host: 192.168.178.87
+        pikube-08:
+          ansible_host: 192.168.178.88
   vars:
     ansible_python_interpreter: /usr/bin/python3
