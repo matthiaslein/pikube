@@ -2,10 +2,12 @@ all:
   children:
     masters:
       hosts:
-        pikube-01:
-          ansible_host: 192.168.178.81
+        pikube-08:
+          ansible_host: 192.168.178.88
     workers:
       hosts:
+        pikube-01:
+          ansible_host: 192.168.178.81
         pikube-02:
           ansible_host: 192.168.178.82
         pikube-03:
@@ -18,7 +20,5 @@ all:
           ansible_host: 192.168.178.86
         pikube-07:
           ansible_host: 192.168.178.87
-        pikube-08:
-          ansible_host: 192.168.178.88
   vars:
     ansible_python_interpreter: /usr/bin/python3
