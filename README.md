@@ -1,8 +1,10 @@
 # pikube
 
 Docomentation for Ubuntu on Raspberry Pi is at:
-https://wiki.ubuntu.com/ARM/RaspberryPi
+https://ubuntu.com/raspberry-pi
 https://ubuntu.com/download/raspberry-pi
+and some older documentation here:
+https://wiki.ubuntu.com/ARM/RaspberryPi
 
 Running kubernetes on raspberry pi
 
@@ -30,6 +32,12 @@ kubectl exec -ti dnsutils -- cat /etc/resolv.conf
 kubectl get svc --all-namespaces
 
 kubectl get nodes -o jsonpath='{range .items[*]} {.metadata.name}{"  "}{.spec.podCIDR}{"\n"}{end}'
+
+# Deploy MetalLB load-balancer
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/namespace.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.9.5/manifests/metallb.yaml
+## On first install only
+kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
 
 # Deploy K8s dashboard with
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0/aio/deploy/recommended.yaml

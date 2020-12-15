@@ -1,0 +1,11 @@
+- name: Add rook-ceph operator helm repo
+  community.kubernetes.helm_repository:
+    name: rook-release
+    repo_url: "https://charts.rook.io/release"
+
+- name: Deploy latest version of the rook-ceph chart
+  community.kubernetes.helm:
+    name: rook-ceph
+    chart_ref: rook-release/rook-ceph
+    release_namespace: rook-ceph
+    create_namespace: true

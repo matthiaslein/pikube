@@ -15,25 +15,3 @@ spec:
     useAllNodes: true
     useAllDevices: true
     deviceFilter: "sda"
-#  resources:
-#    mgr:
-#      limits:
-#        cpu: "500m"
-#        memory: "1024Mi"
-#      requests:
-#        cpu: "500m"
-#        memory: "512Mi"
-#    mon:
-#      limits:
-#        cpu: "1"
-#        memory: "1024Mi"
-#      requests:
-#        cpu: "500m"
-#        memory: "1024Mi"
-#    osd:
-#      limits:
-#        cpu: "1"
-#        memory: "2048Mi"
-#      requests:
-#        cpu: "500m"
-#        memory: "1024Mi"
