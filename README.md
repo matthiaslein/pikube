@@ -73,7 +73,5 @@ https://github.com/rook/rook/blob/master/Documentation/ceph-toolbox.md
 # rook ceph teardown
 https://github.com/rook/rook/blob/master/Documentation/ceph-teardown.md
 
-# nginx-ingress-controller
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install my-release ingress-nginx/ingress-nginx
+# create block storage
+kubectl create -f templates/rook-ceph-block-storageclass.yml
