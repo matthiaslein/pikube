@@ -1,19 +1,12 @@
 - hosts: all
   gather_facts: no
   tasks:
-  - name: Ping all nodes
-    ping:
-    ignore_errors: yes
-
   - name: Wait for system to become reachable
     wait_for_connection:
     register: task_register_var
     until: task_register_var is not failed
     retries: 5
     ignore_errors: yes
-
-  - name: Gather facts for first time
-    setup:
 
 # Base setup for every option
 - name: Prepare all hosts with common setup and container runtime
@@ -67,4 +60,3 @@
   user: "{{ deploy_user }}"
   roles:
     - deployments
-

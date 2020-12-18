@@ -9,3 +9,18 @@
     chart_ref: rook-release/rook-ceph
     release_namespace: rook-ceph
     create_namespace: true
+
+- name: Create rook-ceph cluster
+  community.kubernetes.k8s:
+    apply: yes
+    state: present
+    src: templates/rook-ceph-cluster.yml
+    validate:
+      fail_on_error: yes
+
+- name: Deploy rook-ceph toolbox
+  community.kubernetes.k8s:
+    state: present
+    src: templates/rook-ceph-toolbox.yml
+    validate:
+      fail_on_error: yes

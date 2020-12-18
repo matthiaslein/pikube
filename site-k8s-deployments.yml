@@ -1,0 +1,7 @@
+# Deploy stuff on-top of Kubernetes
+- name: Roll-out deployments on-top of Kubernetes
+  gather_facts: no
+  hosts: localhost
+  user: "{{ deploy_user }}"
+  roles:
+    - deployments
