@@ -6,7 +6,7 @@ https://ubuntu.com/download/raspberry-pi
 and some older documentation here:
 https://wiki.ubuntu.com/ARM/RaspberryPi
 
-Minimum requirements
+**Minimum requirements**
 - Ansible 2.9
 - Helm 3.2.0
 
