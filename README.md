@@ -74,6 +74,7 @@ kubectl -n rook-ceph get pod
 for CRD in $(kubectl get crd -n rook-ceph | awk '/ceph.rook.io/ {print $1}'); do kubectl patch crd -n rook-ceph $CRD --type merge -p '{"metadata":{"finalizers": [null]}}'; done
 
 # zapping devices
+sudo rm -rf /dev/mapper/ceph--* /dev/ceph-*
 sudo dd if=/dev/zero of=/dev/sda count=1024 bs=1048576 && sudo sgdisk --zap /dev/sda && echo w | sudo fdisk /dev/sda
 # rook ceph healthchecks
 https://github.com/rook/rook/blob/master/Documentation/ceph-toolbox.md
