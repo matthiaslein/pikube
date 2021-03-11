@@ -6,6 +6,10 @@ https://ubuntu.com/download/raspberry-pi
 and some older documentation here:
 https://wiki.ubuntu.com/ARM/RaspberryPi
 
+**Minimum requirements**
+- Ansible 2.9
+- Helm 3.2.0
+
 Running kubernetes on raspberry pi
 
 1. Clone this repository
