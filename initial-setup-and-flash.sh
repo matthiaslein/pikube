@@ -338,8 +338,8 @@ fi
 if [ -z "${NODES}" ]
 then
   [ -n "${VERBOSE}" ] && echo "Reading nodes from file"
-  NODES=$(ansible-inventory -i ./hosts --list --toml | grep -e "^\[" | sed
-  s/".*hosts."// | sed s/"]"// | sort)
+  NODES=$(ansible-inventory -i ./hosts --list | jq '.workers.hosts,
+  .masters.hosts'  | tr -d ',[] "' | sed '/^[[:space:]]*$/d' | sort | uniq)
 fi
 
 for HOST in ${NODES}
